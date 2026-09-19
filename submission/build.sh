@@ -33,10 +33,16 @@ ACC=$(cd stages/03-evidence-store && terraform output -raw evidence_storage_acco
 
 echo "== reports"
 for b in $(az storage blob list --account-name "$ACC" -c reports --auth-mode login \
-    --query "[?starts_with(name,'poam/') || starts_with(name,'sar/')].name" -o tsv); do
+    --query "[?starts_with(name,'poam/') || starts_with(name,'sar/') || starts_with(name,'ssp/')].name" -o tsv); do
   az storage blob download --account-name "$ACC" -c reports -n "$b" \
     --file "submission/reports/$(basename "$b")" --auth-mode login --no-progress -o none
 done
+
+echo "== SSP schema check (skipped if jsonschema/regex are not installed)"
+LATEST_SSP=$(ls -1 submission/reports/ssp-*.json 2>/dev/null | tail -1 || true)
+if [ -n "$LATEST_SSP" ] && "$PYTHON" -c "import jsonschema, regex" 2>/dev/null; then
+  "$PYTHON" submission/validate_ssp.py "$LATEST_SSP"
+fi
 
 echo "== run history"
 COSMOS_ENDPOINT=$(cd stages/03-evidence-store && terraform output -raw cosmos_endpoint) "$PYTHON" - <<'PY'

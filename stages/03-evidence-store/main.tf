@@ -16,6 +16,10 @@ resource "random_string" "suffix" {
 # --- Cosmos DB: the evidence database we OWN. Serverless; pennies at lab scale. ---
 
 resource "azurerm_cosmosdb_account" "evidence" {
+  #checkov:skip=CKV_AZURE_100:Customer-managed keys need a Key Vault and a key; the account is identity-only and the finding is accepted.
+  #checkov:skip=CKV_AZURE_101:No private endpoint in a sandbox. Local authentication is disabled, so access is Entra ID only. cge-cosmos-no-public-access flags it and the finding is accepted.
+  #checkov:skip=CKV_AZURE_99:Restricting by IP or VNet needs a fixed egress address, which the Consumption plan does not have.
+  #checkov:skip=CKV_AZURE_140:False positive: local_authentication_enabled = false is set; the check reads the deprecated attribute.
   name                = "cosmos-grc-evidence-${random_string.suffix.result}"
   location            = var.location
   resource_group_name = local.evidence_rg
@@ -26,6 +30,9 @@ resource "azurerm_cosmosdb_account" "evidence" {
   # local_authentication_disabled was deprecated in favour of local_authentication_enabled
   # (removed in azurerm v5.0); the boolean inverts, so disabled=true becomes enabled=false.
   local_authentication_enabled = false
+
+  # No key-based metadata writes either: management-plane changes go through Entra ID roles.
+  access_key_metadata_writes_enabled = false
 
   capabilities {
     name = "EnableServerless"
@@ -103,6 +110,12 @@ resource "azurerm_cosmosdb_sql_container" "runs" {
 # --- Evidence artifact storage: WORM reports container, zero shared keys. ---
 
 resource "azurerm_storage_account" "evidence" {
+  #checkov:skip=CKV_AZURE_59:Reached by the Function Apps and the deployer over the public endpoint; access is identity-only. A private endpoint costs about $7 a month per account, out of scope for a sandbox.
+  #checkov:skip=CKV_AZURE_206:LRS is enough for a sandbox; the WORM policy, not replication, is the integrity control.
+  #checkov:skip=CKV_AZURE_33:The queue service is not used by the evidence account.
+  #checkov:skip=CKV2_AZURE_38:Evidence retention is the WORM policy on the reports container; runtime accounts hold no evidence.
+  #checkov:skip=CKV2_AZURE_33:Private endpoints cost about $7 a month each; out of scope for a sandbox.
+  #checkov:skip=CKV2_AZURE_1:Customer-managed keys need a Key Vault and a key. The baseline audits this with cge-storage-cmk and the finding is accepted.
   name                     = "stgrcevid${random_string.suffix.result}"
   resource_group_name      = local.evidence_rg
   location                 = var.location
@@ -122,6 +135,7 @@ resource "azurerm_storage_account" "evidence" {
 }
 
 resource "azurerm_storage_container" "reports" {
+  #checkov:skip=CKV2_AZURE_21:Read logging on the WORM container adds ingestion cost; administrative activity is already in the Activity Log.
   name               = "reports"
   storage_account_id = azurerm_storage_account.evidence.id
 }
