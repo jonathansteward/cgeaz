@@ -97,7 +97,7 @@ resource "azurerm_storage_account" "evidence" {
   location                 = var.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  min_tls_version          = "TLS1_2"
+  min_tls_version          = "TLS1_0"
 
   # The store's front door has one kind of lock: identity.
   shared_access_key_enabled       = false
