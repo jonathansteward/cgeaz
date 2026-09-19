@@ -259,12 +259,12 @@ resource "azurerm_management_group_policy_set_definition" "grc_baseline" {
   management_group_id = azurerm_management_group.sandbox.id
 
   parameters = jsonencode({
-    tagEffect        = { type = "String", defaultValue = "Audit" }
-    publicBlobEffect = { type = "String", defaultValue = "Deny" }
-    workspaceId      = { type = "String" }
-    tlsEffect        = { type = "String", defaultValue = "Audit" }
-    cosmosPublicAccessEffect  = { type = "String", defaultValue = "Audit" }
-    cmkEffect                 = { type = "String", defaultValue = "Audit" }
+    tagEffect                = { type = "String", defaultValue = "Audit" }
+    publicBlobEffect         = { type = "String", defaultValue = "Deny" }
+    workspaceId              = { type = "String" }
+    tlsEffect                = { type = "String", defaultValue = "Audit" }
+    cosmosPublicAccessEffect = { type = "String", defaultValue = "Audit" }
+    cmkEffect                = { type = "String", defaultValue = "Audit" }
   })
 
   policy_definition_reference {
