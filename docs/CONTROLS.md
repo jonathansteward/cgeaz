@@ -17,6 +17,7 @@ and it's a first-class criterion on the capstone rubric.
 | `cge-storage-cmk` (Audit) | Flags storage encrypted with Microsoft-managed keys rather than customer-managed keys | SC-28, SC-12 |
 | Remediation identity (user-assigned, whitelist roles) | Every automated change has a named, auditable author | AC-2, AC-6 |
 | Log Analytics workspace + Activity Log routing | Central audit trail beyond the 90-day default | AU-2, AU-6, AU-11 |
+| Scheduled alert rules (`alerts.tf`) + action group | The three KQL detections run hourly against the workspace and email the owner | CA-7, SI-4 |
 
 ## Stage 03 — Evidence Store
 
@@ -36,6 +37,7 @@ and it's a first-class criterion on the capstone rubric.
 |---|---|---|
 | POA&M generator (daily, SLA-dated) | Weakness management with owners and dates, from the store only | CA-5 |
 | SAR generator (weekly) | Assessment reporting where every number traces to a stored document | CA-2 |
+| OSCAL SSP generator (weekly) | A machine-readable System Security Plan built from the stored catalog, crosswalk and latest run, validated against the OSCAL 1.1.2 schema | PL-2, CA-2 |
 
 ## Stage 06 — Enforcement
 
@@ -51,7 +53,8 @@ and it's a first-class criterion on the capstone rubric.
 | `storage.rego` | Storage below the pipeline's own standard: public blobs, shared keys, TLS below 1.2 | AC-3, SC-8, SC-28 |
 | `policy_identity.rego` | Remediation that silently never runs | AC-6, CM-3 |
 | `broad_roles.rego` | Owner/Contributor grants in governance code | AC-6 |
-| `drift.yml` + KQL tripwire | Out-of-band change going unnoticed | CA-7, SI-4, CM-3 |
+| `drift.yml` | Reality drifting from the code going unnoticed (nightly plan per stage) | CA-7, CM-3 |
+| `queries/tripwire_human_writes_to_governed_rgs.kql` | A person changing a governed resource group directly, outside the repo and CI | CA-7, SI-4, CM-3 |
 | `queries/fafo_after_hours_admin_writes.kql` | Administrative change outside FAFO business hours going unnoticed | CA-7, SI-4 |
 | `queries/fafo_unapproved_regions.kql` | Resources created outside FAFO's approved regions | CM-2, SI-4 |
 
@@ -67,4 +70,5 @@ and it's a first-class criterion on the capstone rubric.
 | `cge-storage-cmk` | Audit | None while Audit. Deny would block any storage account without a Key Vault key | Set effect to Audit or Disabled |
 | `cge-fix-public-blob` | Modify (mode ladder) | Sets `allowBlobPublicAccess` to false on existing storage accounts in the sandbox group; cannot delete or read data | Set `remediation_mode` to audit |
 | Remediation identity | Monitoring Contributor at mg-grc-sandbox | Create or update diagnostic settings only; no data access | Remove the role assignment |
+| Scheduled alert rules | Alert (email) | Read the Activity Log and send email to the owner; change no resource; a small hourly-evaluation charge per rule | Destroy `alerts.tf` resources or set `enabled = false` |
 | `grc_baseline` assignment | Initiative | Applies all six Stage 01 policies to every current and future subscription in the group | Destroy the assignment |

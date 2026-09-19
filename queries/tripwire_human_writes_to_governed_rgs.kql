@@ -1,0 +1,11 @@
+// Tripwire, who is touching reality: governed resource groups change through the repo and
+// CI. This flags administrative writes and deletes made there by a person (a caller that is
+// a user principal name), which is a change that did not go through the pipeline.
+AzureActivity
+| where CategoryValue == "Administrative" and ActivityStatusValue == "Success"
+| where OperationNameValue endswith "/write" or OperationNameValue endswith "/delete"
+| where tolower(ResourceGroup) startswith "rg-grc-"
+| where Caller contains "@"
+| where OperationNameValue !startswith "MICROSOFT.RESOURCES/DEPLOYMENTS"
+| summarize Changes = count(), FirstSeen = min(TimeGenerated), LastSeen = max(TimeGenerated) by Caller, ResourceGroup, OperationNameValue
+| order by Changes desc

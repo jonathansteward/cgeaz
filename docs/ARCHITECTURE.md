@@ -28,7 +28,7 @@ edits another stage's state.
 | `01-foundation` | Management group hierarchy, the policy initiative and its assignment, the remediation identity, the Log Analytics workspace, the evidence resource group | `management_group_id`, `log_analytics_workspace_id`, `evidence_resource_group_name`, `remediation_identity_id` |
 | `02-activation` | Discovery. Reads the current tier of each Defender plan. Enabling a plan is conditional on the measured gap | `current_plan_tiers`, `activation_needed` |
 | `03-evidence-store` | Cosmos DB (`assessments`, `roleassignments`, `frameworks`, `mappings`), the evidence storage account with the WORM `reports` container, the collector Function App | `cosmos_endpoint`, `cosmos_account_id`, `evidence_storage_account`, `collector_function_app` |
-| `04-reporting` | The reporting Function App: POA&M (daily) and SAR (weekly) generators | `reporting_function_app`, `reporter_principal_id` |
+| `04-reporting` | The reporting Function App: POA&M (daily), SAR (weekly) and OSCAL SSP (weekly) generators | `reporting_function_app`, `reporter_principal_id` |
 | `06-enforcement` | The remediation policy `cge-fix-public-blob` and its escalation ladder | `remediation_mode` |
 
 Stage 05 does not exist as a stage: the narrative layer described in the labs is not part
@@ -41,8 +41,9 @@ of this deployment.
    document carries the run's `runId` and `collectedAt`. The document ID is a hash of the
    assessment and resource, so re-running the collector updates a document and never
    duplicates it.
-2. `poam_daily` (06:00 UTC) and `sar_weekly` (Monday 07:00 UTC) read the latest run from
-   Cosmos only and write dated files into the `reports` container. The reporters have no
+2. `poam_daily` (06:00 UTC), `sar_weekly` (Monday 07:00 UTC) and `ssp_weekly` (Monday 07:30 UTC)
+   read the latest run, the catalog and the crosswalk from Cosmos only and write dated files
+   into the `reports` container. The SSP is an OSCAL 1.1.2 document. The reporters have no
    path to live platform data.
 3. The WORM policy on `reports` means a report cannot be deleted or replaced during the
    retention period, so each artifact is a fixed record of that day.
@@ -88,8 +89,8 @@ Notes on these boundaries:
 | Compliance gate | `.github/workflows/gate.yml` | Every PR to `main` runs `terraform plan` per stage and evaluates the plan with conftest rules in `policy/` |
 | Gate rules | `policy/*.rego` | No public blob access, no shared keys, TLS 1.2 or higher, no Owner or Contributor grants, no remediation assignment without an identity |
 | Drift detection, code vs. reality | `.github/workflows/drift.yml` | Nightly `terraform plan -detailed-exitcode` per stage; drift opens an issue |
-| Drift detection, who touched reality | KQL tripwire in Log Analytics | Out-of-band administrative writes and their caller |
-| FAFO detections | `queries/*.kql` | Administrative changes outside business hours; resources created outside the approved regions |
+| Drift detection, who touched reality | `queries/tripwire_human_writes_to_governed_rgs.kql`, scheduled hourly by `alerts.tf` | A person changing a governed resource group directly, with the caller named |
+| FAFO detections | `queries/fafo_*.kql`, scheduled hourly by `alerts.tf` | Administrative changes outside business hours; resources created outside the approved regions |
 | Escalation ladder | `remediation_mode` in stage 06 | `audit`, then `dry-run`, then `enforce`; each step is a reviewed change |
 
 ## Why these choices

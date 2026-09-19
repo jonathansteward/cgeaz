@@ -67,7 +67,7 @@ mapped to NIST 800-53 in [docs/CONTROLS.md](docs/CONTROLS.md).
    NIST 800-53 catalog and crosswalk into Cosmos.
 7. **Arm CI.** Run `labs/06-loop/arm-your-fork.sh <github-user>` and set the printed
    repository variables. Protect `main` with the four `gate (…)` checks.
-8. **Verify.** Call `collect_now` and `collect_roles_now`, then `poam_now` and `sar_now`,
+8. **Verify.** Call `collect_now` and `collect_roles_now`, then `poam_now`, `sar_now` and `ssp_now`,
    and reproduce a SAR number with the query in "Reproducing a report number" below.
 
 ## FAFO operating rules
@@ -85,6 +85,9 @@ FAFO is the fictional company this estate belongs to. Its rules, which the detec
 Detections:
 - `queries/fafo_after_hours_admin_writes.kql` — administrative writes and deletes outside business hours, by caller.
 - `queries/fafo_unapproved_regions.kql` — successful writes that create resources outside the approved regions.
+- `queries/tripwire_human_writes_to_governed_rgs.kql` — a person changing a governed resource group directly, outside the repo and CI.
+
+`stages/01-foundation/alerts.tf` schedules all three hourly against the Log Analytics workspace and emails the owner.
 
 ## Framework track: NIST 800-53
 
@@ -103,7 +106,7 @@ policy, component, gate rule and observed Defender assessment to those controls
   `cge-cosmos-no-public-access`, `cge-storage-cmk`. Each has a parameterized effect
   (Audit by default), a blast-radius note in code, and a CONTROLS.md mapping.
 - A second collector and container: `roleassignments` snapshots of who holds which role.
-- Two FAFO-specific KQL detections, an 800-53 catalog and crosswalk, and an architecture doc.
+- Two FAFO-specific KQL detections and a human-change tripwire, all scheduled as alert rules; an 800-53 catalog and crosswalk; an OSCAL System Security Plan generated from the store; and an architecture doc.
 - A gate that installs a current conftest and generates its own backend config, and
   that does not cancel sibling stages on failure.
 
