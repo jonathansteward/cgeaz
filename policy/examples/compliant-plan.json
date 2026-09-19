@@ -1,0 +1,10 @@
+{
+  "resource_changes": [
+    {"address": "azurerm_storage_account.evidence", "type": "azurerm_storage_account", "name": "evidence",
+     "change": {"actions": ["no-op"], "after": {"allow_nested_items_to_be_public": false, "shared_access_key_enabled": false, "min_tls_version": "TLS1_2"}}},
+    {"address": "azurerm_role_assignment.collector_security_reader", "type": "azurerm_role_assignment",
+     "change": {"actions": ["no-op"], "after": {"role_definition_name": "Security Reader"}}},
+    {"address": "azurerm_management_group_policy_assignment.grc_baseline", "type": "azurerm_management_group_policy_assignment",
+     "change": {"actions": ["no-op"], "after": {"identity": [{"type": "UserAssigned"}]}}}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "resource_changes": [
+    {"address": "azurerm_storage_account.bad", "type": "azurerm_storage_account", "name": "bad",
+     "change": {"actions": ["create"], "after": {"allow_nested_items_to_be_public": true, "shared_access_key_enabled": true, "min_tls_version": "TLS1_0"}}},
+    {"address": "azurerm_role_assignment.too_broad", "type": "azurerm_role_assignment",
+     "change": {"actions": ["create"], "after": {"role_definition_name": "Owner"}}},
+    {"address": "azurerm_management_group_policy_assignment.no_identity", "type": "azurerm_management_group_policy_assignment",
+     "change": {"actions": ["create"], "after": {"name": "no-identity"}}}
+  ]
+}
