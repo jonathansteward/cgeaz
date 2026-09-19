@@ -6,6 +6,7 @@ let tz = "America/New_York";
 AzureActivity
 | where CategoryValue == "Administrative" and ActivityStatusValue == "Success"
 | where OperationNameValue endswith "/write" or OperationNameValue endswith "/delete"
+| where OperationNameValue !startswith "MICROSOFT.RESOURCES/DEPLOYMENTS"   // the wrapper duplicates the operations inside it
 | extend LocalTime = datetime_utc_to_local(TimeGenerated, tz)
 | extend Hour = hourofday(LocalTime), Day = dayofweek(LocalTime) / 1d
 | where Hour < businessStart or Hour >= businessEnd or Day in (0, 6)
