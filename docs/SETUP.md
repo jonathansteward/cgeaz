@@ -1,0 +1,200 @@
+# CGE-AZ Lab Setup Guide
+
+Do this once, before Lab 1. Total time: ~20 minutes of work, plus a few waits.
+Every step here exists because skipping it broke a real lab run on a real fresh
+account — see [VALIDATION-LOG.md](VALIDATION-LOG.md) for the receipts.
+
+## 0. What you need
+
+- **An Azure free account** — [azure.microsoft.com/free](https://azure.microsoft.com/free).
+  You get **USD 200 of credit for your first 30 days**, free monthly amounts of 20+
+  services for 12 months, 65+ always-free services, and **spending protection**: your
+  card is never charged unless you deliberately upgrade to pay-as-you-go.
+- **Azure CLI** (`brew install azure-cli` / [install docs](https://learn.microsoft.com/cli/azure/install-azure-cli)) — validated on 2.90.
+- **Terraform >= 1.9** (`brew install terraform`) — validated on 1.14.
+- **Python 3.11+** with `pip`.
+- **A GitHub account** and `git`.
+- Domain 6 also uses **conftest** (`brew install conftest`).
+
+## 0b. Already an Azure customer? (no $200 credit for you — here's the real cost)
+
+The free-account credit is for brand-new accounts only. If your card is already
+registered with Azure (first learner to hit this: launch day), you run the labs
+pay-as-you-go — and that is fine, because the pipeline is deliberately cheap:
+
+- The **Defender for Cloud 30-day trial** is per subscription, per plan, on first
+  enablement — you still get it. Consider a fresh subscription in your existing
+  tenant for a clean sandbox.
+- Everything else is serverless or consumption tier: Cosmos DB serverless,
+  Y1 Functions (the free monthly grant usually covers the course), LRS storage,
+  and a small Log Analytics ingest. Torn down on schedule, the whole course
+  typically lands under a few dollars.
+- The budget alert in Lab 1 is not optional for you — it's your only spending
+  protection, since pay-as-you-go has no free-account safety net.
+- Run history for the capstone: keep the timers alive until you submit, tear
+  down after the score comes back. The grader reads run history from your
+  evidence store, so submit first, then tear down.
+
+## 1. Timing strategy — read this before creating anything
+
+Two 30-day clocks matter, and you start both:
+
+1. **The $200 credit clock** starts when you create the free account.
+2. **The Defender trial clock** starts in Lab 2 when you enable your first paid plan.
+
+Create the account when you're ready to actually take the course, do Lab 2 within the
+first few days, and both windows comfortably cover Labs 2–6 and the capstone. If life
+interrupts you mid-course, that's fine — everything except the one Defender plan is
+free-tier, and the teardown script kills the plan in one command.
+
+**One more clock:** Defender's *first assessment cycle* on a brand-new subscription can
+take several hours to ~24h. Lab 2 sets this expectation; don't panic at an empty
+assessments API on day one.
+
+## 2. Sign in and register resource providers
+
+```bash
+az login
+az account show   # confirm the right subscription
+```
+
+Fresh subscriptions have almost every resource provider **unregistered**, which produces
+confusing errors deep into the labs. Register the eight the course uses now:
+
+```bash
+for ns in Microsoft.Management Microsoft.OperationalInsights Microsoft.Security \
+          Microsoft.DocumentDB Microsoft.Web Microsoft.Storage Microsoft.Insights \
+          Microsoft.PolicyInsights; do
+  az provider register --namespace $ns
+done
+```
+
+Registration takes ~2–3 minutes; check with
+`az provider list --query "[?registrationState=='Registering'].namespace"` — empty means done.
+
+## 3. Fork and clone the repo
+
+Fork `github.com/GRCEngClub/cgeaz` to your own account, then:
+
+```bash
+git clone https://github.com/<you>/cgeaz.git
+cd cgeaz
+```
+
+Every lab lives in `labs/`, every pipeline stage in `stages/`.
+
+## 4. Know the regional quirks (validated 2026-09)
+
+- **Consumption-plan (Y1) quota is regional and ZERO in most US regions on free
+  accounts.** In validation, `centralus` and `westus3` worked; eastus, eastus2, westus2,
+  southcentralus, northcentralus did not. Before Lab 4, run:
+
+  ```bash
+  ./labs/00-setup/probe-quota.sh
+  ```
+
+  and set `functions_location` (stages 03/04) to a region marked OK.
+- **East US frequently lacks Cosmos DB capacity** for new subscriptions. The evidence
+  store defaults to `eastus2` for this reason. Leave it unless it fails, then pick
+  another region.
+
+## 5. Known CLI potholes (already routed around in the labs)
+
+| Symptom | Cause | The lab's fix |
+|---|---|---|
+| `az consumption budget create` → 400 | CLI uses a retired API | Lab 1 uses `az rest` (script provided) |
+| `az monitor diagnostic-settings create` → `KeyError: resource_group` at subscription scope | CLI parsing bug | Lab 2 uses `az rest` (script provided) |
+| `terraform init` → 403 `AuthorizationPermissionMismatch` on brand-new state storage | Blob **data-plane** role just granted; RBAC propagation | Wait 1–3 minutes and retry — bootstrap.sh warns you |
+| First management group creation hangs a couple of minutes | Tenant root group being provisioned | Wait; do not re-run |
+| Assessments API returns `[]` on a new subscription | Defender's first cycle hasn't run | Expected — see timing strategy above |
+
+## 6. Cost guardrails (defense in depth for your wallet)
+
+Three layers, in order of who saves you:
+
+1. **Spending protection** — free accounts don't charge your card unless you upgrade.
+2. **The $200 credit** — absorbs anything the free tiers don't.
+3. **Your Lab 1 budget alert** — $10/month with actual + forecast alerts, so you hear
+   about a runaway before it matters.
+
+Validated lab-run costs: everything except the Defender for Storage trial is free tier or
+pennies (Cosmos serverless, consumption Functions, one Log Analytics workspace at PerGB2018
+with lab-scale ingestion). Teardown scripts exist in every lab folder; the course-end
+teardown is `terraform destroy` per stage, in reverse order (06 → 04 → 03 → 01).
+
+## 7. Windows / Git Bash notes
+
+> Setting up a Windows machine from scratch (Azure CLI, Terraform, Python,
+> conftest, PowerShell-native provider registration)? Follow
+> **[SETUP-WINDOWS.md](SETUP-WINDOWS.md)** — a launch-day learner contribution —
+> then come back here for the Git Bash quirks below.
+
+The labs are written for a POSIX shell. On Windows, Git Bash covers almost everything,
+with three things to know up front (each lab repeats the note where it bites):
+
+1. **Path mangling on resource IDs.** Git Bash rewrites arguments that start with `/`
+   into Windows paths, which corrupts Azure resource IDs (`--scope /subscriptions/...`,
+   `terraform import /providers/...`). Disable it for your session before Lab 1:
+
+   ```bash
+   export MSYS_NO_PATHCONV=1
+   ```
+
+2. **No `zip` command.** Labs 4 and 5 zip the function code. Git Bash does not ship
+   `zip`; use 7-Zip (`7z a /tmp/collector.zip .`) or run those two steps from WSL.
+   Either way, zip the directory *contents* so `host.json` sits at the archive root.
+
+3. **`date` is GNU.** The budget script's `date -d "+2 years"` fallback works in
+   Git Bash as-is; nothing to change.
+
+WSL (Ubuntu) needs none of the above and matches the validated environment most
+closely; if you already have it, prefer it.
+
+You're ready. Start with `labs/01-sandbox`.
+
+## 8. Linux notes — rolling-release distros (Kali, Arch, etc.)
+
+Two real failure modes from a launch-day learner on Kali (thank you, Lee), both
+Python packaging problems rather than Azure ones:
+
+1. **`az` breaks with `ModuleNotFoundError: No module named
+   'azure.mgmt.resource...'`** — a system-wide `pip install` clobbered a
+   dependency the apt-installed CLI needed (the `azure` namespace package is
+   shared across ~300 azure-mgmt-* packages, so whichever install wins,
+   everyone gets). Don't reconcile versions in system site-packages; give the
+   CLI its own venv:
+
+   ```bash
+   python3 -m venv ~/.local/share/az-cli-venv
+   ~/.local/share/az-cli-venv/bin/pip install --upgrade pip
+   ~/.local/share/az-cli-venv/bin/pip install "azure-cli==2.90.0"
+   ln -sf ~/.local/share/az-cli-venv/bin/az ~/.local/bin/az
+   ```
+
+   (Avoid `pipx install azure-cli` — it has resolved to an ancient release and
+   its launcher shells out to the system `python`, reintroducing the conflict.)
+
+2. **The venv later breaks with `No module named 'azure'`** — rolling-release
+   distros repoint `/usr/bin/python3` on ordinary upgrades, and a venv's
+   `bin/python3` is a symlink to that movable target, so its site-packages
+   directory stops matching the interpreter version. Pin the venv to the exact
+   interpreter it was built with:
+
+   ```bash
+   ln -sf /usr/bin/python3.13 ~/.local/share/az-cli-venv/bin/python3
+   ```
+
+   On fixed-release distros (Debian stable, Ubuntu LTS) this doesn't happen —
+   the default python3 doesn't move between releases.
+
+## Appendix: how the CI workflows get credentials
+
+They don't — not in this repo. The upstream repo is **deliberately unarmed**: its
+workflows skip until `AZURE_CLIENT_ID` is set, and it never will be here, because on
+a public repo the `pull_request` OIDC subject matches PRs from any fork. Each learner
+arms **their own fork** against **their own sandbox subscription** in Lab 6 with
+`labs/06-loop/arm-your-fork.sh`, which creates a fork-scoped OIDC federation and
+prints the five repository variables to add. No secrets exist anywhere in this design:
+OIDC exchanges short-lived tokens against a federation that names your fork alone.
+Hardening the granted role (Contributor → a plan-only custom role) is a worthwhile
+production exercise — and a good community PR.
