@@ -155,11 +155,16 @@ Notes on these boundaries:
 - **The run ledger exists because evidence upserts.** Deterministic document IDs make the
   collectors idempotent but leave only the latest `runId` on each document, so history lives
   in the `runs` container, with the trigger recorded to tell timers from manual runs.
+- **Components map to CSF 2.0 only, and the crosswalk carries them to 800-53.** Mapping each
+  component to two frameworks by hand invites disagreement. The mapping is done once, to CSF
+  2.0, and the stored CSF 2.0 to 800-53 crosswalk supplies the 800-53 view. The System
+  Security Plan uses it, marking each control `partial` because a component contributes to a
+  control through a category and does not claim the whole control.
 - **The System Security Plan is generated, not written.** `ssp_weekly` builds an OSCAL 1.1.2
-  document from the catalog, the crosswalk and the latest assessments run in Cosmos, and the
+  document from the CSF 2.0 crosswalk, the CSF 2.0 to 800-53 crosswalk and the latest assessments run in Cosmos, and the
   output is checked against the official NIST schema (`submission/validate_ssp.py`). The
   plan stays consistent with CONTROLS.md because both come from the same crosswalk, and
-  `labs/04-evidence/seed_800_53.py --check` fails if they diverge.
+  `labs/04-evidence/seed_crosswalk.py --check` fails if they diverge.
 - **Detections run as alert rules, not as saved queries.** The `.kql` files can be run by
   hand and reviewed in a PR, and `alerts.tf` schedules them hourly, so "who is touching
   reality" is answered without anyone remembering to look. They email the owner, and the
@@ -175,8 +180,8 @@ Notes on these boundaries:
 | `assessments` | `/subscriptionId` | One document per Defender assessment and resource, per run |
 | `roleassignments` | `/subscriptionId` | One document per role assignment, per run |
 | `runs` | `/collector` | The ledger: one entry per collection run, with its trigger (`timer` or `manual`) and document count |
-| `frameworks` | `/frameworkId` | The NIST 800-53 catalog subset (families and controls) |
-| `mappings` | `/frameworkId` | The crosswalk from policies, components, gates and assessments to controls |
+| `frameworks` | `/frameworkId` | The NIST CSF 2.0 functions and 22 categories with their titles, and the titles of the 800-53 controls the crosswalk points to |
+| `mappings` | `/frameworkId` | Components, policies, gates and assessments mapped to CSF 2.0 categories, and the CSF 2.0 to 800-53 crosswalk |
 
 - **Why `/subscriptionId` for the two evidence containers.** Every report and every
   reproducing query is scoped to one subscription, so each query touches one partition. A

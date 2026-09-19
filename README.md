@@ -42,7 +42,7 @@ submission/  the evidence package: plans, identities, reports, run history, WORM
 
 Architecture, identity boundaries and the reasoning behind non-obvious choices are in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Every policy, collector and gate rule is
-mapped to NIST 800-53 in [docs/CONTROLS.md](docs/CONTROLS.md).
+mapped to NIST CSF 2.0 in [docs/CONTROLS.md](docs/CONTROLS.md).
 
 ## Deploy order (from an empty subscription)
 
@@ -63,8 +63,9 @@ mapped to NIST 800-53 in [docs/CONTROLS.md](docs/CONTROLS.md).
    Later stages read earlier stages' outputs, so the order matters.
 5. **Function code.** Zip-deploy `functions/collect_assessments` to the collector app and
    `functions/reports` to the reporting app (`az functionapp deployment source config-zip`).
-6. **Seed the framework data.** `python3 labs/04-evidence/seed_800_53.py` writes the
-   NIST 800-53 catalog and crosswalk into Cosmos.
+6. **Seed the framework data.** `python3 labs/04-evidence/seed_frameworks.py` writes the
+   CSF 2.0 functions, and `python3 labs/04-evidence/seed_crosswalk.py` writes the categories
+   and the crosswalk into Cosmos.
 7. **Arm CI.** Run `labs/06-loop/arm-your-fork.sh <github-user>` and set the printed
    repository variables. Protect `main` with the four `gate (…)` checks.
 8. **Verify.** Call `collect_now` and `collect_roles_now`, then `poam_now`, `sar_now` and `ssp_now`,
@@ -98,17 +99,29 @@ Detections:
 
 `stages/01-foundation/alerts.tf` schedules all three hourly against the Log Analytics workspace and emails the owner.
 
-## Framework track: NIST 800-53
+## Framework track: NIST CSF 2.0, crosswalked to 800-53
 
-Every policy, collector, report and gate rule is mapped to a **NIST CSF 2.0 category**,
-and crosswalked to **NIST 800-53**, the track this pipeline follows. 800-53 suits a
-US-federal-shaped estate like FAFO's, and it is the catalog the OSCAL System Security Plan
-speaks. One collected assessment serves both frameworks: the Cosmos `frameworks` and
-`mappings` containers hold the CSF 2.0 structure and a deliberate 800-53 subset (the 26
-controls this pipeline actually serves, in ten families), and a crosswalk from every
-policy, component, gate rule and observed Defender assessment to categories and controls in
-both (`labs/04-evidence/seed_800_53.py`). [docs/CONTROLS.md](docs/CONTROLS.md) is the
-human-readable copy, and `seed_800_53.py --check` fails if the two drift apart.
+Every policy, collector, report, gate rule and detection is mapped to a **NIST CSF 2.0
+category**, and only to CSF 2.0. CSF 2.0 is the shared language between the engineers who
+build the controls and the people who govern them, and its functions line up with what the
+pipeline does: it governs through the policy initiative, identifies through discovery and
+the inventory collectors, protects through Azure Policy, detects through the alert rules and
+drift checks, and responds through the remediation loop.
+
+The crosswalk goes from CSF 2.0 to **NIST 800-53**: each category the pipeline uses is
+mapped once to the 800-53 controls that support it. That is what makes collection
+framework-independent. One collected assessment maps to CSF categories, and the crosswalk
+carries those categories to 800-53 controls, so the OSCAL System Security Plan can be
+written in 800-53 terms without mapping any component to 800-53 by hand.
+
+The Cosmos `frameworks` container holds the CSF 2.0 functions, the 22 categories with their
+titles, and the titles of the 800-53 controls the crosswalk points to. `mappings` holds the
+crosswalk from every policy, component, gate rule and observed Defender assessment to CSF
+categories, and the CSF 2.0 to 800-53 crosswalk (`labs/04-evidence/seed_frameworks.py` and
+`labs/04-evidence/seed_crosswalk.py`). [docs/CONTROLS.md](docs/CONTROLS.md) is the
+human-readable copy of both, and `seed_crosswalk.py --check` fails if they drift apart. The
+crosswalk is category-level and covers the controls the pipeline can credibly speak to, not
+the full 800-53 catalog.
 
 ## What this repository adds to the starter
 
@@ -116,7 +129,7 @@ human-readable copy, and `seed_800_53.py --check` fails if the two drift apart.
   `cge-cosmos-no-public-access`, `cge-storage-cmk`. Each has a parameterized effect
   (Audit by default), a blast-radius note in code, and a CONTROLS.md mapping.
 - A second collector and container: `roleassignments` snapshots of who holds which role.
-- Two FAFO-specific KQL detections and a human-change tripwire, all scheduled as alert rules; an 800-53 catalog and crosswalk; an OSCAL System Security Plan generated from the store; and an architecture doc.
+- Two FAFO-specific KQL detections and a human-change tripwire, all scheduled as alert rules; a CSF 2.0 to 800-53 crosswalk stored as data; an OSCAL System Security Plan generated from the store; and an architecture doc.
 - A gate that installs a current conftest and generates its own backend config, and
   that does not cancel sibling stages on failure.
 

@@ -145,12 +145,14 @@ def generate_sar() -> dict:
 
 
 # --- OSCAL System Security Plan ---------------------------------------------------
-# Built entirely from the store: the 800-53 catalog subset (frameworks), the crosswalk
-# (mappings) and the latest assessments run. UUIDs are derived from stable names, so two
-# plans differ only where the store differs.
+# Built entirely from the store. Components are mapped to CSF 2.0 categories, and the stored
+# CSF 2.0 to 800-53 crosswalk carries those categories to the 800-53 controls the plan
+# speaks in. UUIDs are derived from stable names, so two plans differ only where the store
+# differs.
 
 OSCAL_VERSION = "1.1.2"
-FRAMEWORK_ID = "nist-800-53"
+CSF_ID = "nist-csf-2.0"
+TARGET_ID = "nist-800-53"
 SSP_NAMESPACE = uuid.UUID("6f1c2f5e-0b7a-4d43-9e1e-3a5b8c1d7e42")
 COMPONENT_TYPE = {"policy": "policy", "component": "software", "gate": "process", "assessment": "service"}
 
@@ -167,32 +169,47 @@ def _container(name: str):
     )
 
 
-def _framework_docs(kind: str) -> list:
+def _query(container: str, framework: str, where: str) -> list:
     return list(
-        _container("frameworks").query_items(
-            "SELECT * FROM c WHERE c.frameworkId = @f AND c.type = @t",
-            parameters=[{"name": "@f", "value": FRAMEWORK_ID}, {"name": "@t", "value": kind}],
-            partition_key=FRAMEWORK_ID,
+        _container(container).query_items(
+            f"SELECT * FROM c WHERE c.frameworkId = @f AND {where}",
+            parameters=[{"name": "@f", "value": framework}],
+            partition_key=framework,
         )
     )
 
 
-def build_ssp(controls: list, crosswalk: list, findings: list, run_id, collected_at, generated_at: str) -> dict:
+def build_ssp(controls: list, crosswalk: list, category_map: dict, findings: list, run_id, collected_at, generated_at: str) -> dict:
+    """controls: 800-53 control documents; crosswalk: component to CSF category documents;
+    category_map: CSF category to the 800-53 controls that support it."""
     titles = {c["controlId"]: c["title"] for c in controls}
-    by_control = defaultdict(list)
-    for m in crosswalk:
-        if m["sourceType"] == "assessment":
-            continue
-        for cid in m["controls"]:
-            by_control[cid].append(m)
+    components_in_scope = [m for m in crosswalk if m["sourceType"] != "assessment"]
 
-    assessment_controls = {m["source"]: m["controls"] for m in crosswalk if m["sourceType"] == "assessment"}
+    # control -> {component key -> (component doc, the CSF categories that carry it there)}
+    by_control = defaultdict(dict)
+    for m in components_in_scope:
+        for cat in m["controls"]:
+            for ctl in category_map.get(cat, []):
+                entry = by_control[ctl].setdefault((m["sourceType"], m["source"]), (m, set()))
+                entry[1].add(cat)
+
     open_findings = Counter()
     for f in findings:
-        for cid in assessment_controls.get(f.get("assessmentId"), []):
-            open_findings[cid] += 1
+        for m in crosswalk:
+            if m["sourceType"] == "assessment" and m["source"] == f.get("assessmentId"):
+                for cat in m["controls"]:
+                    for ctl in category_map.get(cat, []):
+                        open_findings[ctl] += 1
 
     components = [
+        {
+            "uuid": _uuid("component:this-system"),
+            "type": "this-system",
+            "title": "FAFO GRC engineering pipeline",
+            "description": "The collectors, evidence store, report generators, policies and gates that make up the pipeline.",
+            "status": {"state": "operational"},
+        }
+    ] + [
         {
             "uuid": _uuid(f"component:{m['sourceType']}:{m['source']}"),
             "type": COMPONENT_TYPE.get(m["sourceType"], "software"),
@@ -200,39 +217,32 @@ def build_ssp(controls: list, crosswalk: list, findings: list, run_id, collected
             "description": m["description"],
             "status": {"state": "operational"},
         }
-        for m in crosswalk
-        if m["sourceType"] != "assessment"
+        for m in components_in_scope
     ]
-    components.insert(
-        0,
-        {
-            "uuid": _uuid("component:this-system"),
-            "type": "this-system",
-            "title": "FAFO GRC engineering pipeline",
-            "description": "The collectors, evidence store, report generators, policies and gates that make up the pipeline.",
-            "status": {"state": "operational"},
-        },
-    )
 
     requirements = []
-    for cid in sorted(by_control):
-        oscal_id = cid.lower()
-        requirement = {
-            "uuid": _uuid(f"requirement:{oscal_id}"),
-            "control-id": oscal_id,
-            "props": [{"name": "implementation-status", "value": "implemented", "ns": "http://csrc.nist.gov/ns/oscal"}],
-            "by-components": [
-                {
-                    "component-uuid": _uuid(f"component:{m['sourceType']}:{m['source']}"),
-                    "uuid": _uuid(f"by:{oscal_id}:{m['sourceType']}:{m['source']}"),
-                    "description": f"{m['description']} ({m['sourceType']}: {m['source']}).",
-                    "implementation-status": {"state": "implemented"},
-                }
-                for m in sorted(by_control[cid], key=lambda m: (m["sourceType"], m["source"]))
-            ],
-            "remarks": f"{titles.get(cid, cid)}. Open findings mapped to this control in run {run_id}: {open_findings.get(cid, 0)}.",
-        }
-        requirements.append(requirement)
+    for ctl in sorted(by_control):
+        oscal_id = ctl.lower()
+        requirements.append(
+            {
+                "uuid": _uuid(f"requirement:{oscal_id}"),
+                "control-id": oscal_id,
+                "props": [{"name": "implementation-status", "value": "partial", "ns": "http://csrc.nist.gov/ns/oscal"}],
+                "by-components": [
+                    {
+                        "component-uuid": _uuid(f"component:{m['sourceType']}:{m['source']}"),
+                        "uuid": _uuid(f"by:{oscal_id}:{m['sourceType']}:{m['source']}"),
+                        "description": f"{m['description']} ({m['sourceType']}: {m['source']}), which contributes to this "
+                        f"control through CSF 2.0 {', '.join(sorted(cats))}.",
+                        "implementation-status": {"state": "partial"},
+                    }
+                    for (_, _), (m, cats) in sorted(by_control[ctl].items())
+                ],
+                "remarks": f"{titles.get(ctl, ctl)}. Reached through the CSF 2.0 to 800-53 crosswalk, so each component "
+                f"contributes without claiming the whole control. Open findings mapped to it in run {run_id}: "
+                f"{open_findings.get(ctl, 0)}.",
+            }
+        )
 
     return {
         "system-security-plan": {
@@ -245,8 +255,9 @@ def build_ssp(controls: list, crosswalk: list, findings: list, run_id, collected
                 "roles": [{"id": "system-owner", "title": "System Owner"}],
                 "parties": [{"uuid": _uuid("party:fafo"), "type": "organization", "name": "FAFO"}],
                 "responsible-parties": [{"role-id": "system-owner", "party-uuids": [_uuid("party:fafo")]}],
-                "remarks": f"Generated from the evidence store. Assessments run: {run_id or 'none yet'}. "
-                "The control set is a deliberate subset of NIST 800-53, not the full baseline.",
+                "remarks": f"Generated from the evidence store. Assessments run: {run_id or 'none yet'}. Components are mapped "
+                "to NIST CSF 2.0 categories; the 800-53 controls below come from the stored CSF 2.0 to 800-53 crosswalk and are "
+                "a subset, not the full baseline.",
             },
             "import-profile": {
                 "href": "https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json"
@@ -295,8 +306,8 @@ def build_ssp(controls: list, crosswalk: list, findings: list, run_id, collected
                 "components": components,
             },
             "control-implementation": {
-                "description": "Each requirement below is implemented by the policies, pipeline components and gate rules "
-                "that the crosswalk maps to it. The crosswalk is stored data (mappings container) and mirrors docs/CONTROLS.md.",
+                "description": "Components are mapped to NIST CSF 2.0 categories (mappings container); each requirement below is an "
+                "800-53 control reached through the stored CSF 2.0 to 800-53 crosswalk. The mapping mirrors docs/CONTROLS.md.",
                 "implemented-requirements": requirements,
             },
         }
@@ -307,16 +318,11 @@ def generate_ssp() -> dict:
     cosmos, blobs = _clients()
     run_id, collected_at = _latest_run(cosmos)
     findings = _unhealthy(cosmos, run_id) if run_id else []
-    controls = _framework_docs("control")
-    crosswalk = list(
-        _container("mappings").query_items(
-            "SELECT * FROM c WHERE c.frameworkId = @f AND c.type = 'crosswalk'",
-            parameters=[{"name": "@f", "value": FRAMEWORK_ID}],
-            partition_key=FRAMEWORK_ID,
-        )
-    )
+    controls = _query("frameworks", TARGET_ID, "c.type = 'control'")
+    crosswalk = _query("mappings", CSF_ID, "c.type = 'crosswalk'")
+    category_map = {d["source"]: d["controls"] for d in _query("mappings", CSF_ID, "c.type = 'framework-crosswalk'")}
     generated_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    ssp = build_ssp(controls, crosswalk, findings, run_id, collected_at, generated_at)
+    ssp = build_ssp(controls, crosswalk, category_map, findings, run_id, collected_at, generated_at)
 
     path = _dated_path("ssp", "json")
     blobs.upload_blob(path, json.dumps(ssp, indent=2), overwrite=False)

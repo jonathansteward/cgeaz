@@ -75,8 +75,10 @@ echo "  $(jq '.customDefinitions | length' submission/policies.json) custom defi
 ACC=$(cd stages/03-evidence-store && terraform output -raw evidence_storage_account)
 
 echo "== reports"
+# POA&M and SAR history all come down; for the SSP only the newest is packaged.
+LATEST_SSP_BLOB=$(az storage blob list --account-name "$ACC" -c reports --prefix ssp/ --auth-mode login --query "[-1].name" -o tsv)
 for b in $(az storage blob list --account-name "$ACC" -c reports --auth-mode login \
-    --query "[?starts_with(name,'poam/') || starts_with(name,'sar/') || starts_with(name,'ssp/')].name" -o tsv); do
+    --query "[?starts_with(name,'poam/') || starts_with(name,'sar/')].name" -o tsv) $LATEST_SSP_BLOB; do
   az storage blob download --account-name "$ACC" -c reports -n "$b" \
     --file "submission/reports/$(basename "$b")" --auth-mode login --no-progress -o none
 done

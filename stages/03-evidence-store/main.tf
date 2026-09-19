@@ -65,7 +65,7 @@ resource "azurerm_cosmosdb_sql_container" "assessments" {
   partition_key_paths = ["/subscriptionId"]
 }
 
-# frameworks: CSF 2.0 / 800-53 catalogs as records we own.
+# frameworks: the CSF 2.0 functions and categories as records we own.
 resource "azurerm_cosmosdb_sql_container" "frameworks" {
   name                = "frameworks"
   resource_group_name = local.evidence_rg
