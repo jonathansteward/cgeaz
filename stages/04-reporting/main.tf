@@ -69,6 +69,13 @@ resource "azurerm_linux_function_app" "reporting" {
   }
 
   tags = local.common_tags
+
+  # Zip deploy with a remote build (the deploy step in labs/04-evidence and labs/05-reports)
+  # removes this setting from the running app after it has done its job. Without this,
+  # every nightly drift run would report the same non-change as drift.
+  lifecycle {
+    ignore_changes = [app_settings["ENABLE_ORYX_BUILD"]]
+  }
 }
 
 # --- The reporting identity's whitelist — the mirror image of the collector's. ---
