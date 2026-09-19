@@ -1,0 +1,27 @@
+{
+  "stage": "02-activation",
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "azurerm_security_center_subscription_pricing.baseline[\"KeyVaults\"]",
+      "type": "azurerm_security_center_subscription_pricing",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_security_center_subscription_pricing.baseline[\"StorageAccounts\"]",
+      "type": "azurerm_security_center_subscription_pricing",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_subscription_policy_assignment.nist_csf_20",
+      "type": "azurerm_subscription_policy_assignment",
+      "actions": [
+        "no-op"
+      ]
+    }
+  ]
+}

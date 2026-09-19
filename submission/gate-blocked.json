@@ -1,0 +1,13 @@
+{
+  "pullRequest": "https://github.com/jonathansteward/cgeaz/pull/4",
+  "state": "closed without merging",
+  "change": "min_tls_version = TLS1_0 on azurerm_storage_account.evidence (stage 03)",
+  "failedCheck": "gate (03-evidence-store)",
+  "message": "azurerm_storage_account.evidence: storage accounts must require TLS 1.2 or higher",
+  "otherStages": "passed",
+  "run": {
+    "conclusion": "failure",
+    "headSha": "4a8b7b01a71c376bbb92f0518c20641803d24f32",
+    "url": "https://github.com/jonathansteward/cgeaz/actions/runs/35471179627"
+  }
+}

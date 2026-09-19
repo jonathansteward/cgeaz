@@ -1,0 +1,48 @@
+{
+  "stage": "04-reporting",
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "azurerm_cosmosdb_sql_role_assignment.reporter_cosmos_read",
+      "type": "azurerm_cosmosdb_sql_role_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_linux_function_app.reporting",
+      "type": "azurerm_linux_function_app",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_role_assignment.reporter_blob_write",
+      "type": "azurerm_role_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_service_plan.reporting",
+      "type": "azurerm_service_plan",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_storage_account.func_internal",
+      "type": "azurerm_storage_account",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "random_string.suffix",
+      "type": "random_string",
+      "actions": [
+        "no-op"
+      ]
+    }
+  ]
+}

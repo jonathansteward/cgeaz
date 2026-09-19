@@ -1,0 +1,93 @@
+[
+  {
+    "principalId": "3236dfd2-01f2-41d1-9aa8-455b75f4752a",
+    "principalType": "User",
+    "roleDefinitionName": "Owner",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a",
+    "createdOn": "2026-09-18T22:40:39.483250+00:00"
+  },
+  {
+    "principalId": "3236dfd2-01f2-41d1-9aa8-455b75f4752a",
+    "principalType": "User",
+    "roleDefinitionName": "Owner",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a",
+    "createdOn": "2026-09-18T22:40:39.713947+00:00"
+  },
+  {
+    "principalId": "8dce55f4-73b4-47f9-8187-1b9cd74d865b",
+    "principalType": "Group",
+    "roleDefinitionName": "Reader",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a/resourceGroups/rg-grc-sandbox-dev",
+    "createdOn": "2026-09-19T14:12:02.033471+00:00"
+  },
+  {
+    "principalId": "3236dfd2-01f2-41d1-9aa8-455b75f4752a",
+    "principalType": "User",
+    "roleDefinitionName": "Storage Blob Data Contributor",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a/resourceGroups/rg-grc-tfstate",
+    "createdOn": "2026-09-19T14:40:13.213079+00:00"
+  },
+  {
+    "principalId": "3236dfd2-01f2-41d1-9aa8-455b75f4752a",
+    "principalType": "User",
+    "roleDefinitionName": "Storage Blob Data Contributor",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a/resourceGroups/rg-grc-evidence-dev/providers/Microsoft.Storage/storageAccounts/stgrcevidg0z12u",
+    "createdOn": "2026-09-19T15:12:15.747542+00:00"
+  },
+  {
+    "principalId": "21aaa4d6-0616-41ff-9548-9b5a3b360eef",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionName": "Security Reader",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a",
+    "createdOn": "2026-09-19T15:14:33.143477+00:00"
+  },
+  {
+    "principalId": "5d5dc2e0-e322-446d-851c-ddea5eaa8d03",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionName": "Storage Blob Data Contributor",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a/resourceGroups/rg-grc-evidence-dev/providers/Microsoft.Storage/storageAccounts/stgrcevidg0z12u",
+    "createdOn": "2026-09-19T15:39:12.065858+00:00"
+  },
+  {
+    "principalId": "c0d14c5f-08db-4fca-aaf2-36e16b5a30f5",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionName": "Storage Blob Data Contributor",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a/resourceGroups/rg-grc-tfstate",
+    "createdOn": "2026-09-19T16:09:03.141669+00:00"
+  },
+  {
+    "principalId": "3236dfd2-01f2-41d1-9aa8-455b75f4752a",
+    "principalType": "User",
+    "roleDefinitionName": "Owner",
+    "scope": "/providers/Microsoft.Management/managementGroups/mg-grc-sandbox",
+    "createdOn": "2026-09-19T14:09:02.069806+00:00"
+  },
+  {
+    "principalId": "4f3f1405-3c91-452f-8405-6b2babc1f5e9",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionName": "Monitoring Contributor",
+    "scope": "/providers/Microsoft.Management/managementGroups/mg-grc-sandbox",
+    "createdOn": "2026-09-19T14:50:11.495924+00:00"
+  },
+  {
+    "principalId": "4f3f1405-3c91-452f-8405-6b2babc1f5e9",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionName": "Storage Account Contributor",
+    "scope": "/providers/Microsoft.Management/managementGroups/mg-grc-sandbox",
+    "createdOn": "2026-09-19T16:04:33.361038+00:00"
+  },
+  {
+    "principalId": "3236dfd2-01f2-41d1-9aa8-455b75f4752a",
+    "principalType": "User",
+    "roleDefinitionName": "Owner",
+    "scope": "/providers/Microsoft.Management/managementGroups/mg-grc",
+    "createdOn": "2026-09-19T13:55:14.254123+00:00"
+  },
+  {
+    "principalId": "c0d14c5f-08db-4fca-aaf2-36e16b5a30f5",
+    "principalType": "ServicePrincipal",
+    "roleDefinitionName": "Contributor",
+    "scope": "/providers/Microsoft.Management/managementGroups/mg-grc",
+    "createdOn": "2026-09-19T16:09:01.270017+00:00"
+  }
+]
