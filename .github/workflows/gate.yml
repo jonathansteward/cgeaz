@@ -30,6 +30,7 @@ jobs:
     if: ${{ vars.AZURE_CLIENT_ID != '' }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         stage: [01-foundation, 03-evidence-store, 04-reporting, 06-enforcement]
     steps:
@@ -43,6 +44,14 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Write backend config
+        run: |
+          cat > labs/03-foundation/backend.hcl <<EOF
+          resource_group_name  = "rg-grc-tfstate"
+          storage_account_name = "${{ vars.STATE_STORAGE_ACCOUNT }}"
+          container_name       = "tfstate"
+          EOF
+
       - name: terraform validate + plan
         working-directory: stages/${{ matrix.stage }}
         run: |
@@ -52,7 +61,6 @@ jobs:
           terraform show -json tf.plan > plan.json
 
       - name: OPA gate (conftest)
-        uses: instrumenta/conftest-action@master
-        with:
-          files: stages/${{ matrix.stage }}/plan.json
-          policy: policy
+        run: |
+          curl -sL https://github.com/open-policy-agent/conftest/releases/download/v0.70.1/conftest_0.70.1_Linux_x86_64.tar.gz | tar xz conftest
+          ./conftest test stages/${{ matrix.stage }}/plan.json -p policy/
