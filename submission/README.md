@@ -1,7 +1,5 @@
 # Evidence package
 
-Generated from the deployed environment. Nothing here is written by hand.
-
 | File | What it shows | How it was produced |
 |---|---|---|
 | `plans/<stage>.json` | `terraform plan` for each stage: every resource and the action Terraform would take. All `no-op`, so code and deployed state match | `terraform show -json`, reduced to address, type and action so no attribute values are included |
