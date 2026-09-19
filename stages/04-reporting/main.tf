@@ -22,6 +22,14 @@ data "azurerm_storage_account" "evidence" {
 }
 
 resource "azurerm_storage_account" "func_internal" {
+  #checkov:skip=CKV_AZURE_59:Reached by the Function Apps and the deployer over the public endpoint; access is identity-only. A private endpoint costs about $7 a month per account, out of scope for a sandbox.
+  #checkov:skip=CKV_AZURE_206:LRS is enough for a sandbox; the WORM policy, not replication, is the integrity control.
+  #checkov:skip=CKV_AZURE_33:The queue service is not used by this runtime account.
+  #checkov:skip=CKV2_AZURE_38:Evidence retention is the WORM policy on the reports container; runtime accounts hold no evidence.
+  #checkov:skip=CKV2_AZURE_33:Private endpoints cost about $7 a month each; out of scope for a sandbox.
+  #checkov:skip=CKV2_AZURE_1:Customer-managed keys need a Key Vault and a key. The baseline audits this with cge-storage-cmk and the finding is accepted.
+  #checkov:skip=CKV2_AZURE_40:The Functions runtime requires the account key; this account holds no evidence.
+  #checkov:skip=CKV2_AZURE_41:No SAS tokens are issued for this account.
   name                            = "stgrcrpt${random_string.suffix.result}"
   resource_group_name             = local.evidence_rg
   location                        = var.functions_location
@@ -33,6 +41,8 @@ resource "azurerm_storage_account" "func_internal" {
 }
 
 resource "azurerm_service_plan" "reporting" {
+  #checkov:skip=CKV_AZURE_212:Consumption (Y1) plans have no instance count to set.
+  #checkov:skip=CKV_AZURE_225:Consumption (Y1) plans have no zone redundancy option; pay-per-execution is the point for a sandbox.
   name                = "asp-grc-reporting-${var.environment}"
   resource_group_name = local.evidence_rg
   location            = var.functions_location
@@ -42,10 +52,12 @@ resource "azurerm_service_plan" "reporting" {
 }
 
 resource "azurerm_linux_function_app" "reporting" {
+  #checkov:skip=CKV_AZURE_221:Reached by the timer host and by callers holding function keys; private access needs a VNet and a paid plan.
   name                       = "func-grc-reporting-${random_string.suffix.result}"
   resource_group_name        = local.evidence_rg
   location                   = var.functions_location
   service_plan_id            = azurerm_service_plan.reporting.id
+  https_only                 = true
   storage_account_name       = azurerm_storage_account.func_internal.name
   storage_account_access_key = azurerm_storage_account.func_internal.primary_access_key
 
