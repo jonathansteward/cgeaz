@@ -123,6 +123,22 @@ Notes on these boundaries:
   `STATE_STORAGE_ACCOUNT` repository variable before `terraform init`.
 - **A current conftest release is installed in CI.** The rules use `import rego.v1`, which
   the older bundled action cannot parse, so the workflow downloads a pinned release.
+- **Three regions, each for a reason.** Foundation resources are in `eastus`. The evidence
+  store is in `eastus2`, because East US frequently lacks Cosmos capacity for new
+  subscriptions. The Function Apps are in `centralus`, because Consumption-plan quota is
+  regional and was zero elsewhere on this subscription (`labs/00-setup/probe-quota.sh`
+  finds a region with quota). All three are inside FAFO's approved regions, which the
+  `fafo_unapproved_regions` detection enforces.
+- **Dry-run is the default for enforcement.** `remediation_mode` defaults to `dry-run`: the
+  `modify` policy is deployed but not enforced, so nothing is remediated until a person
+  creates the remediation task. Moving to `enforce` is a reviewed change to one variable.
+- **The state backend is a controlled resource.** State lives in a storage account with
+  shared keys disabled (Entra ID only), blob versioning, and 14-day soft delete for blobs
+  and containers, set in `labs/03-foundation/bootstrap.sh`. The CI identity reaches it
+  through the Storage Blob Data Contributor role, not a key.
+- **The gate rules have tests.** `policy/*_test.rego` unit-tests every rule, and
+  `policy/examples/` holds a compliant and a violating plan. The gate runs
+  `conftest verify` before it evaluates the plan, so a broken rule fails the build.
 - **Static analysis findings are fixed or justified in code.** checkov reports no failed
   checks. The 33 skipped checks each carry an inline `#checkov:skip=<id>:<reason>` comment
   in the resource, naming the cost or design reason (a private endpoint costs about $7 a

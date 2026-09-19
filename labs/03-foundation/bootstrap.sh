@@ -26,14 +26,19 @@ az storage account create \
   --kind StorageV2 \
   --min-tls-version TLS1_2 \
   --allow-blob-public-access false \
+  --allow-shared-key-access false \
   --tags env=shared purpose=terraform-state \
   --output none
 
-echo ">> Enabling blob versioning (every state change becomes a recoverable version)"
+# The state account is a controlled resource: keyless (shared keys off, Entra ID only),
+# versioned, and soft-delete protected, so no state change or deletion is unrecoverable.
+echo ">> Enabling blob versioning and soft delete (every state change is a recoverable version)"
 az storage account blob-service-properties update \
   --account-name "$SA_NAME" \
   --resource-group "$RG_STATE" \
   --enable-versioning true \
+  --enable-delete-retention true --delete-retention-days 14 \
+  --enable-container-delete-retention true --container-delete-retention-days 14 \
   --output none
 
 echo ">> State container: $CONTAINER"

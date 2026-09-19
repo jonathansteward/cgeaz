@@ -3,8 +3,10 @@
 
 This is the framework track for this pipeline: an 800-53 catalog (the controls the
 pipeline actually serves, not the whole catalog) and a crosswalk from every policy,
-component, and gate rule to those controls. docs/CONTROLS.md is the human-readable copy
-of the same crosswalk; `--check` fails if the two disagree.
+component, and gate rule to those controls. The same sources are also crosswalked to
+NIST CSF 2.0 categories (the CSF 2.0 structure itself is seeded by seed_frameworks.py), so
+one collected assessment serves both frameworks. docs/CONTROLS.md is the human-readable
+copy of both crosswalks; `--check` fails if it and this file disagree.
 
     # validate the data and compare it with docs/CONTROLS.md, no Azure access needed
     python3 seed_800_53.py --dry-run --check
@@ -111,6 +113,47 @@ CROSSWALK = [
 ]
 
 
+# NIST CSF 2.0 categories for the same sources, keyed by (sourceType, source).
+CSF_CATEGORIES = {
+    "GV.OC", "GV.RM", "GV.RR", "GV.PO", "GV.OV", "GV.SC", "ID.AM", "ID.RA", "ID.IM",
+    "PR.AA", "PR.AT", "PR.DS", "PR.PS", "PR.IR", "DE.CM", "DE.AE",
+    "RS.MA", "RS.AN", "RS.CO", "RS.MI", "RC.RP", "RC.CO",
+}
+CSF_FRAMEWORK_ID = "nist-csf-2.0"
+CSF = {
+    ("policy", "cge-require-env-tag-rg"): ["ID.AM"],
+    ("policy", "cge-deny-public-blob"): ["PR.DS"],
+    ("policy", "cge-dine-storage-diagnostics"): ["PR.PS", "DE.CM"],
+    ("policy", "cge-min-tls12-storage"): ["PR.DS"],
+    ("policy", "cge-cosmos-no-public-access"): ["PR.IR"],
+    ("policy", "cge-storage-cmk"): ["PR.DS"],
+    ("policy", "cge-fix-public-blob"): ["PR.DS", "RS.MI"],
+    ("component", "management-group-hierarchy"): ["GV.PO", "GV.OC"],
+    ("component", "remediation-identity"): ["PR.AA", "GV.RR"],
+    ("component", "log-analytics-activity-log"): ["DE.CM", "PR.PS"],
+    ("component", "cosmos-evidence-store"): ["GV.OV", "ID.RA"],
+    ("component", "worm-reports-container"): ["PR.DS"],
+    ("component", "shared-keys-disabled-rbac"): ["PR.AA"],
+    ("component", "collector-function"): ["DE.CM", "ID.RA"],
+    ("component", "collector-reporter-split"): ["PR.AA", "GV.RR"],
+    ("component", "run-ledger"): ["GV.OV", "DE.CM"],
+    ("component", "role-assignment-collector"): ["PR.AA", "ID.AM", "DE.CM"],
+    ("component", "poam-generator"): ["ID.IM", "GV.RM"],
+    ("component", "sar-generator"): ["ID.RA", "GV.OV"],
+    ("component", "ssp-generator"): ["GV.PO", "GV.OV"],
+    ("component", "scheduled-detection-alerts"): ["DE.CM", "DE.AE"],
+    ("component", "remediation-mode-variable"): ["GV.PO", "GV.RR"],
+    ("gate", "storage.rego"): ["PR.DS"],
+    ("gate", "policy_identity.rego"): ["PR.PS"],
+    ("gate", "broad_roles.rego"): ["PR.AA"],
+    ("gate", "drift-detection"): ["DE.CM", "DE.AE"],
+    ("gate", "tripwire-human-writes-to-governed-rgs"): ["DE.CM", "DE.AE"],
+    ("gate", "fafo-after-hours-admin-writes"): ["DE.CM", "DE.AE"],
+    ("gate", "fafo-unapproved-regions"): ["ID.AM", "DE.CM"],
+    ("assessment", "3869fbd7-5d90-84e4-37bd-d9a7f4ce9a24"): ["RS.CO", "DE.AE"],
+}
+
+
 def slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
@@ -155,6 +198,15 @@ def build_documents():
             "description": description,
             "controls": controls,
         })
+        mappings.append({
+            "id": f"map-csf-{source_type}-{slug(source)}",
+            "frameworkId": CSF_FRAMEWORK_ID,
+            "type": "crosswalk",
+            "sourceType": source_type,
+            "source": source,
+            "description": description,
+            "controls": CSF[(source_type, source)],
+        })
     return frameworks, mappings
 
 
@@ -165,9 +217,19 @@ def validate(frameworks, mappings) -> list[str]:
         if fam_id not in FAMILIES:
             problems.append(f"control family {fam_id} has no FAMILIES entry")
     for m in mappings:
+        if m["frameworkId"] != FRAMEWORK_ID:
+            continue
         for c in m["controls"]:
             if c not in known:
                 problems.append(f"{m['source']}: maps to {c}, which is not in the catalog subset")
+    for source_type, source, _, _ in CROSSWALK:
+        cats = CSF.get((source_type, source))
+        if not cats:
+            problems.append(f"{source}: no CSF 2.0 mapping")
+            continue
+        for c in cats:
+            if c not in CSF_CATEGORIES:
+                problems.append(f"{source}: {c} is not a CSF 2.0 category")
     ids = [d["id"] for d in frameworks + mappings]
     if len(ids) != len(set(ids)):
         problems.append("duplicate document ids")
@@ -175,37 +237,38 @@ def validate(frameworks, mappings) -> list[str]:
 
 
 def check_controls_md(path: Path) -> list[str]:
-    """Compare the crosswalk with docs/CONTROLS.md, the human-readable copy."""
+    """Compare the crosswalks with docs/CONTROLS.md, the human-readable copy."""
     if not path.exists():
         return [f"{path} not found"]
-    id_re = re.compile(r"\b[A-Z]{2}-\d+\b")
-    doc_ids, doc_rows = set(), {}
+    csf_re = re.compile(r"[A-Z]{2}\.[A-Z]{2}(, [A-Z]{2}\.[A-Z]{2})*")
+    ctl_re = re.compile(r"[A-Z]{2}-\d+(, [A-Z]{2}-\d+)*")
+    rows = {}
     for line in path.read_text(encoding="utf-8").splitlines():
         if not line.startswith("|") or line.startswith("|---"):
             continue
         cells = [c.strip() for c in line.strip("|").split("|")]
-        if len(cells) != 3:
+        if len(cells) != 4 or not csf_re.fullmatch(cells[2]) or not ctl_re.fullmatch(cells[3]):
             continue
-        if not re.fullmatch(r"[A-Z]{2}-\d+(, [A-Z]{2}-\d+)*", cells[2]):
-            continue
-        ids = id_re.findall(cells[2])
-        doc_ids.update(ids)
-        doc_rows[cells[0].replace("`", "").split(" (")[0]] = set(ids)
+        name = cells[0].replace("`", "").split(" (")[0]
+        rows[name] = (set(cells[2].split(", ")), set(cells[3].split(", ")))
 
     problems = []
-    for c in sorted(doc_ids - set(CONTROLS)):
-        problems.append(f"CONTROLS.md uses {c}, which is not in the catalog subset")
-    crosswalk_ids = {c for _, _, _, cs in CROSSWALK for c in cs}
-    for c in sorted(set(CONTROLS) - doc_ids - crosswalk_ids):
-        problems.append(f"catalog control {c} is not used by CONTROLS.md or the crosswalk")
+    for csf_ids, ctl_ids in rows.values():
+        for c in sorted(csf_ids - CSF_CATEGORIES):
+            problems.append(f"CONTROLS.md uses {c}, which is not a CSF 2.0 category")
+        for c in sorted(ctl_ids - set(CONTROLS)):
+            problems.append(f"CONTROLS.md uses {c}, which is not in the 800-53 subset")
     for source_type, source, _, controls in CROSSWALK:
         if source_type != "policy":
             continue
-        row = doc_rows.get(source)
+        row = rows.get(source)
         if row is None:
             problems.append(f"policy {source} is in the crosswalk but not in CONTROLS.md")
-        elif row != set(controls):
-            problems.append(f"policy {source}: crosswalk {sorted(controls)} != CONTROLS.md {sorted(row)}")
+            continue
+        if row[1] != set(controls):
+            problems.append(f"policy {source}: 800-53 {sorted(controls)} != CONTROLS.md {sorted(row[1])}")
+        if row[0] != set(CSF[(source_type, source)]):
+            problems.append(f"policy {source}: CSF {sorted(CSF[(source_type, source)])} != CONTROLS.md {sorted(row[0])}")
     return problems
 
 

@@ -100,14 +100,15 @@ Detections:
 
 ## Framework track: NIST 800-53
 
-The pipeline maps to **NIST 800-53**. It suits a US-federal-shaped estate like FAFO's
-and it is the catalog the Azure Policy compliance tooling and the OSCAL format speak.
-The store holds a deliberate subset, not the whole catalog: the 26 controls this
-pipeline actually serves, grouped into nine families, and a crosswalk that maps every
-policy, component, gate rule and observed Defender assessment to those controls
-(`labs/04-evidence/seed_800_53.py`, Cosmos containers `frameworks` and `mappings`).
-[docs/CONTROLS.md](docs/CONTROLS.md) is the human-readable copy, and
-`seed_800_53.py --check` fails if the two drift apart.
+Every policy, collector, report and gate rule is mapped to a **NIST CSF 2.0 category**,
+and crosswalked to **NIST 800-53**, the track this pipeline follows. 800-53 suits a
+US-federal-shaped estate like FAFO's, and it is the catalog the OSCAL System Security Plan
+speaks. One collected assessment serves both frameworks: the Cosmos `frameworks` and
+`mappings` containers hold the CSF 2.0 structure and a deliberate 800-53 subset (the 26
+controls this pipeline actually serves, in ten families), and a crosswalk from every
+policy, component, gate rule and observed Defender assessment to categories and controls in
+both (`labs/04-evidence/seed_800_53.py`). [docs/CONTROLS.md](docs/CONTROLS.md) is the
+human-readable copy, and `seed_800_53.py --check` fails if the two drift apart.
 
 ## What this repository adds to the starter
 
@@ -118,6 +119,30 @@ policy, component, gate rule and observed Defender assessment to those controls
 - Two FAFO-specific KQL detections and a human-change tripwire, all scheduled as alert rules; an 800-53 catalog and crosswalk; an OSCAL System Security Plan generated from the store; and an architecture doc.
 - A gate that installs a current conftest and generates its own backend config, and
   that does not cancel sibling stages on failure.
+
+## Proof: the failed delete on the WORM container
+
+The `reports` container carries a 90-day time-based immutability policy. Deleting a report
+is refused by the platform, whoever asks:
+
+```bash
+az storage blob delete --account-name stgrcevidg0z12u -c reports -n sar/2026/09/sar-2026-09-19.md --auth-mode login
+```
+```
+ERROR: This operation is not permitted as the blob is immutable due to a policy.
+ErrorCode:BlobImmutableDueToPolicy
+```
+
+The attempts and the policy that refused them are recorded in `submission/worm-denied.json`.
+
+## Proof: the gate blocks a non-compliant plan
+
+Pull request #4 changed the evidence storage account to `min_tls_version = "TLS1_0"`.
+`gate (03-evidence-store)` failed at the OPA step with
+`azurerm_storage_account.evidence: storage accounts must require TLS 1.2 or higher`, the
+other three stages passed, and the pull request was closed unmerged. The record is in
+`submission/gate-blocked.json`. The rules and their unit tests are in `policy/`
+(`conftest verify -p policy/`), with a passing and a failing example plan.
 
 ## Reproducing a report number
 
