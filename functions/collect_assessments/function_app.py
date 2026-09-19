@@ -23,7 +23,31 @@ ARM = "https://management.azure.com"
 API_VERSION = "2021-06-01"
 
 
-def _collect() -> dict:
+def _record_run(collector: str, trigger: str, run_id: str, collected_at: str, written: int) -> None:
+    """Append one entry to the runs container: the store's own ledger of collection runs.
+
+    Evidence documents upsert on deterministic IDs, so they only ever carry the latest
+    runId. This ledger is what accumulates: one entry per run, kept by run ID, saying
+    which collector ran, whether a timer or a person triggered it, and how much it wrote.
+    """
+    runs = (
+        CosmosClient(os.environ["COSMOS_ENDPOINT"], DefaultAzureCredential())
+        .get_database_client(os.environ["COSMOS_DATABASE"])
+        .get_container_client("runs")
+    )
+    runs.upsert_item(
+        {
+            "id": run_id,
+            "collector": collector,
+            "trigger": trigger,
+            "runId": run_id,
+            "collectedAt": collected_at,
+            "documentsWritten": written,
+        }
+    )
+
+
+def _collect(trigger: str = "manual") -> dict:
     subscription_id = os.environ["SUBSCRIPTION_ID"]
     cosmos_endpoint = os.environ["COSMOS_ENDPOINT"]
     database = os.environ["COSMOS_DATABASE"]
@@ -82,6 +106,7 @@ def _collect() -> dict:
 
         url = payload.get("nextLink")
 
+    _record_run("assessments", trigger, run_id, collected_at, written)
     logging.info("collection run %s complete: %d documents", run_id, written)
     return {"runId": run_id, "written": written, "collectedAt": collected_at}
 
@@ -89,7 +114,7 @@ def _collect() -> dict:
 @app.timer_trigger(schedule="0 0 5 * * *", arg_name="timer", run_on_startup=False)
 def collect_nightly(timer: func.TimerRequest) -> None:
     """Nightly sweep at 05:00 UTC — midnight-ish US Eastern."""
-    _collect()
+    _collect("timer")
 
 
 @app.route(route="collect", auth_level=func.AuthLevel.FUNCTION)
@@ -122,7 +147,7 @@ def _arm_get_all(url: str, token: str) -> list:
     return items
 
 
-def _collect_role_assignments() -> dict:
+def _collect_role_assignments(trigger: str = "manual") -> dict:
     subscription_id = os.environ["SUBSCRIPTION_ID"]
     credential = DefaultAzureCredential()
     token = credential.get_token(f"{ARM}/.default").token
@@ -165,6 +190,7 @@ def _collect_role_assignments() -> dict:
         )
         written += 1
 
+    _record_run("roleassignments", trigger, run_id, collected_at, written)
     logging.info("role assignment run %s complete: %d documents", run_id, written)
     return {"runId": run_id, "written": written, "collectedAt": collected_at}
 
@@ -172,7 +198,7 @@ def _collect_role_assignments() -> dict:
 @app.timer_trigger(schedule="0 30 5 * * *", arg_name="timer", run_on_startup=False)
 def collect_roles_nightly(timer: func.TimerRequest) -> None:
     """Nightly role assignment snapshot at 05:30 UTC, after the assessments sweep."""
-    _collect_role_assignments()
+    _collect_role_assignments("timer")
 
 
 @app.route(route="collect_roles", auth_level=func.AuthLevel.FUNCTION)

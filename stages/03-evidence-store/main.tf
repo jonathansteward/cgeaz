@@ -89,6 +89,17 @@ resource "azurerm_cosmosdb_sql_container" "roleassignments" {
   partition_key_paths = ["/subscriptionId"]
 }
 
+# runs: the ledger of collection runs. Evidence documents upsert on deterministic IDs and so
+# carry only the latest runId; this container is what accumulates. Partitioned by collector:
+# the queries are "all runs of collector X", and the write rate is a handful of entries a day.
+resource "azurerm_cosmosdb_sql_container" "runs" {
+  name                = "runs"
+  resource_group_name = local.evidence_rg
+  account_name        = azurerm_cosmosdb_account.evidence.name
+  database_name       = azurerm_cosmosdb_sql_database.grc.name
+  partition_key_paths = ["/collector"]
+}
+
 # --- Evidence artifact storage: WORM reports container, zero shared keys. ---
 
 resource "azurerm_storage_account" "evidence" {
