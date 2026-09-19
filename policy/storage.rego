@@ -18,3 +18,10 @@ deny contains msg if {
 	not startswith(rc.name, "func_internal")
 	msg := sprintf("%s: shared key access must be disabled (identity or nothing) — func runtime storage is the documented exception", [rc.address])
 }
+
+deny contains msg if {
+	some rc in input.resource_changes
+	rc.type == "azurerm_storage_account"
+	not object.get(rc.change.after, "min_tls_version", "TLS1_2") in {"TLS1_2", "TLS1_3"}
+	msg := sprintf("%s: storage accounts must require TLS 1.2 or higher", [rc.address])
+}
