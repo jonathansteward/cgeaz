@@ -87,6 +87,7 @@ CROSSWALK = [
     ("component", "shared-keys-disabled-rbac", "Shared keys disabled, data-plane RBAC", ["AC-3", "AC-6", "IA-5"]),
     ("component", "collector-function", "Collector Function (Security Reader, Cosmos write only)", ["CA-7", "RA-5"]),
     ("component", "collector-reporter-split", "Collector and reporter identity split", ["AC-5", "AC-6"]),
+    ("component", "run-ledger", "Run ledger container recording every collection run", ["AU-2", "AU-12", "CA-7"]),
     ("component", "role-assignment-collector", "Role assignment collector and roleassignments container", ["AC-2", "AC-6", "CA-7"]),
     ("component", "poam-generator", "POA&M generator", ["CA-5"]),
     ("component", "sar-generator", "SAR generator", ["CA-2"]),
