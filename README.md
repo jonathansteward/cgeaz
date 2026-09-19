@@ -70,6 +70,15 @@ mapped to NIST 800-53 in [docs/CONTROLS.md](docs/CONTROLS.md).
 8. **Verify.** Call `collect_now` and `collect_roles_now`, then `poam_now`, `sar_now` and `ssp_now`,
    and reproduce a SAR number with the query in "Reproducing a report number" below.
 
+## Static analysis
+
+Run before opening a PR: `terraform fmt -recursive stages/`, `terraform validate` per
+stage, `tflint --chdir stages/<stage>` (configuration in `.tflint.hcl`; run `tflint --init`
+once) and `checkov -d stages`. checkov reports no failed checks. Each skipped check carries
+an inline `#checkov:skip=<id>:<reason>` comment in the resource explaining why. The
+reasoning is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The compliance gate then
+runs the plan through the conftest rules in `policy/`.
+
 ## FAFO operating rules
 
 FAFO is the fictional company this estate belongs to. Its rules, which the detections in

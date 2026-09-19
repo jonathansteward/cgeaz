@@ -1,0 +1,20 @@
+[
+  {
+    "principalId": "3236dfd2-01f2-41d1-9aa8-455b75f4752a",
+    "principalDisplayName": "redacted-user",
+    "role": "Cosmos DB Built-in Data Contributor",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a/resourceGroups/rg-grc-evidence-dev/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-grc-evidence-g0z12u"
+  },
+  {
+    "principalId": "5d5dc2e0-e322-446d-851c-ddea5eaa8d03",
+    "principalDisplayName": "func-grc-reporting-vk29fw",
+    "role": "Cosmos DB Built-in Data Reader",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a/resourceGroups/rg-grc-evidence-dev/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-grc-evidence-g0z12u"
+  },
+  {
+    "principalId": "21aaa4d6-0616-41ff-9548-9b5a3b360eef",
+    "principalDisplayName": "func-grc-collectors-g0z12u",
+    "role": "Cosmos DB Built-in Data Contributor",
+    "scope": "/subscriptions/994f71a2-f5ae-4002-9dfd-15a8b4d2d83a/resourceGroups/rg-grc-evidence-dev/providers/Microsoft.DocumentDB/databaseAccounts/cosmos-grc-evidence-g0z12u"
+  }
+]

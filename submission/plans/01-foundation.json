@@ -14,98 +14,127 @@
       "type": "azurerm_management_group",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "mg-grc",
+      "display_name": "GRC Engineering"
     },
     {
       "address": "azurerm_management_group.sandbox",
       "type": "azurerm_management_group",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "mg-grc-sandbox",
+      "display_name": "GRC Sandbox"
     },
     {
       "address": "azurerm_management_group_policy_assignment.grc_baseline",
       "type": "azurerm_management_group_policy_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-grc-baseline",
+      "display_name": "CGE-AZ GRC Baseline"
     },
     {
       "address": "azurerm_management_group_policy_set_definition.grc_baseline",
       "type": "azurerm_management_group_policy_set_definition",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-grc-baseline",
+      "display_name": "CGE-AZ GRC Baseline",
+      "policy_definition_references": 6
     },
     {
       "address": "azurerm_monitor_action_group.secops",
       "type": "azurerm_monitor_action_group",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "ag-grc-secops",
+      "display_name": null
     },
     {
       "address": "azurerm_monitor_scheduled_query_rules_alert_v2.detections[\"fafo-after-hours-admin-writes\"]",
       "type": "azurerm_monitor_scheduled_query_rules_alert_v2",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "alert-fafo-after-hours-admin-writes",
+      "display_name": ""
     },
     {
       "address": "azurerm_monitor_scheduled_query_rules_alert_v2.detections[\"fafo-unapproved-regions\"]",
       "type": "azurerm_monitor_scheduled_query_rules_alert_v2",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "alert-fafo-unapproved-regions",
+      "display_name": ""
     },
     {
       "address": "azurerm_monitor_scheduled_query_rules_alert_v2.detections[\"tripwire-human-writes-to-governed-rgs\"]",
       "type": "azurerm_monitor_scheduled_query_rules_alert_v2",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "alert-tripwire-human-writes-to-governed-rgs",
+      "display_name": ""
     },
     {
       "address": "azurerm_policy_definition.cosmos_public_access",
       "type": "azurerm_policy_definition",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-cosmos-no-public-access",
+      "display_name": "Cosmos DB accounts must disable public network access"
     },
     {
       "address": "azurerm_policy_definition.deny_public_blob",
       "type": "azurerm_policy_definition",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-deny-public-blob",
+      "display_name": "Storage accounts must not allow public blob access"
     },
     {
       "address": "azurerm_policy_definition.min_tls",
       "type": "azurerm_policy_definition",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-min-tls12-storage",
+      "display_name": "Storage accounts must require TLS 1.2 or higher"
     },
     {
       "address": "azurerm_policy_definition.require_env_tag",
       "type": "azurerm_policy_definition",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-require-env-tag-rg",
+      "display_name": "Resource groups must carry an env tag"
     },
     {
       "address": "azurerm_policy_definition.storage_cmk",
       "type": "azurerm_policy_definition",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-storage-cmk",
+      "display_name": "Storage accounts should use customer-managed keys"
     },
     {
       "address": "azurerm_policy_definition.storage_diagnostics",
       "type": "azurerm_policy_definition",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-dine-storage-diagnostics",
+      "display_name": "Storage accounts must route diagnostics to the GRC workspace"
     },
     {
       "address": "azurerm_resource_group.evidence",
@@ -126,14 +155,18 @@
       "type": "azurerm_role_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "178f5599-9e9b-630f-0fb2-8b5daafe4e21",
+      "display_name": null
     },
     {
       "address": "azurerm_user_assigned_identity.remediation",
       "type": "azurerm_user_assigned_identity",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "id-grc-remediation-dev",
+      "display_name": null
     }
   ]
 }
