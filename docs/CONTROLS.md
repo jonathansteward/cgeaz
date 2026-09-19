@@ -27,6 +27,7 @@ and it's a first-class criterion on the capstone rubric.
 | Shared keys disabled + data-plane RBAC | Identity or nothing; no credentials to steal or rotate | AC-3, AC-6, IA-5 |
 | Collector Function (Security Reader + Cosmos write only) | Continuous control-test capture with lineage; cannot alter what it observes | CA-7, RA-5 |
 | Collector/reporter identity split | The recorder of facts cannot author the narrative — SoD by role scopes | AC-5, AC-6 |
+| Run ledger (`runs` container) | Every collection run is recorded with its trigger and document count, so run history is evidence in the store | AU-2, AU-12, CA-7 |
 | Role assignment collector (`collect_roles_nightly`) + `roleassignments` container | Nightly snapshot of who holds which role at which scope, with the same `runId` and `collectedAt` lineage | AC-2, AC-6, CA-7 |
 
 ## Stage 04 — Reporting

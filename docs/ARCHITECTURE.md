@@ -52,8 +52,12 @@ of this deployment.
 
 ## Identity boundaries
 
-No identity both writes evidence and generates reports, and no pipeline identity holds
-Owner or Contributor. The permissions of each identity are a whitelist of its job.
+No identity both writes evidence and generates reports. None of the runtime identities (the
+remediation identity and both Function Apps) holds Owner or Contributor; their permissions
+are a whitelist of their job. The CI identity is the one exception: it holds Contributor at
+the sandbox management group so that `terraform plan` can refresh state and list storage
+keys. It is federated to this repository only, holds no secret, and Contributor cannot write
+role assignments. Narrowing it to a custom role is the known improvement.
 
 | Identity | Type | Roles | Can | Cannot |
 |---|---|---|---|---|
@@ -126,6 +130,7 @@ Notes on these boundaries:
 |---|---|---|
 | `assessments` | `/subscriptionId` | One document per Defender assessment and resource, per run |
 | `roleassignments` | `/subscriptionId` | One document per role assignment, per run |
+| `runs` | `/collector` | The ledger: one entry per collection run, with its trigger (`timer` or `manual`) and document count |
 | `frameworks` | `/frameworkId` | The NIST 800-53 catalog subset (families and controls) |
 | `mappings` | `/frameworkId` | The crosswalk from policies, components, gates and assessments to controls |
 
@@ -135,6 +140,11 @@ Notes on these boundaries:
   which is what the estate-size-independence requirement asks for. Write volume is one
   document per finding or assignment per night, far below the throughput of a single
   partition, so the key does not create a hot partition.
+- **Why `/collector` for the run ledger.** Evidence documents upsert on deterministic IDs, so
+  they carry only the latest `runId` and cannot show history. The `runs` container is what
+  accumulates. Every query against it is "the runs of one collector", and it takes a few
+  writes a day, so the key spreads nothing it needs to. The `trigger` field is what separates
+  scheduled runs from manual ones.
 - **Why `/frameworkId` for the catalog containers.** Reads are always "all documents for
   one framework". Adding a second framework adds a partition and leaves the first alone.
 - **The second collector.** `collect_roles_nightly` snapshots role assignments into
