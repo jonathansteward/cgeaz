@@ -2,7 +2,7 @@
 # reality still match the code"; these scheduled queries answer "who has been changing
 # reality, and when". The queries live in queries/ so they can be run by hand and reviewed in
 # a PR; this file schedules them against the workspace the Activity Log is routed to.
-# Mapped to 800-53 CA-7 and SI-4 in docs/CONTROLS.md.
+# Mapped to CSF 2.0 DE.CM and DE.AE in docs/CONTROLS.md.
 
 # blast radius: sends email to the owner and nothing else. It reads the Activity Log, changes
 # no resource, and costs a small per-rule charge for the hourly evaluation.
