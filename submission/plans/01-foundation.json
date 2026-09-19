@@ -1,0 +1,111 @@
+{
+  "stage": "01-foundation",
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "azurerm_log_analytics_workspace.grc",
+      "type": "azurerm_log_analytics_workspace",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_management_group.grc",
+      "type": "azurerm_management_group",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_management_group.sandbox",
+      "type": "azurerm_management_group",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_management_group_policy_assignment.grc_baseline",
+      "type": "azurerm_management_group_policy_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_management_group_policy_set_definition.grc_baseline",
+      "type": "azurerm_management_group_policy_set_definition",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_policy_definition.cosmos_public_access",
+      "type": "azurerm_policy_definition",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_policy_definition.deny_public_blob",
+      "type": "azurerm_policy_definition",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_policy_definition.min_tls",
+      "type": "azurerm_policy_definition",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_policy_definition.require_env_tag",
+      "type": "azurerm_policy_definition",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_policy_definition.storage_cmk",
+      "type": "azurerm_policy_definition",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_policy_definition.storage_diagnostics",
+      "type": "azurerm_policy_definition",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_resource_group.evidence",
+      "type": "azurerm_resource_group",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_resource_group.sandbox",
+      "type": "azurerm_resource_group",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_role_assignment.remediation_monitoring",
+      "type": "azurerm_role_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_user_assigned_identity.remediation",
+      "type": "azurerm_user_assigned_identity",
+      "actions": [
+        "no-op"
+      ]
+    }
+  ]
+}

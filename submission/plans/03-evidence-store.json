@@ -1,0 +1,132 @@
+{
+  "stage": "03-evidence-store",
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "azurerm_cosmosdb_account.evidence",
+      "type": "azurerm_cosmosdb_account",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_cosmosdb_sql_container.assessments",
+      "type": "azurerm_cosmosdb_sql_container",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_cosmosdb_sql_container.frameworks",
+      "type": "azurerm_cosmosdb_sql_container",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_cosmosdb_sql_container.mappings",
+      "type": "azurerm_cosmosdb_sql_container",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_cosmosdb_sql_container.roleassignments",
+      "type": "azurerm_cosmosdb_sql_container",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_cosmosdb_sql_container.runs",
+      "type": "azurerm_cosmosdb_sql_container",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_cosmosdb_sql_database.grc",
+      "type": "azurerm_cosmosdb_sql_database",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_cosmosdb_sql_role_assignment.collector_cosmos_write",
+      "type": "azurerm_cosmosdb_sql_role_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_cosmosdb_sql_role_assignment.deployer_cosmos_write",
+      "type": "azurerm_cosmosdb_sql_role_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_linux_function_app.collectors",
+      "type": "azurerm_linux_function_app",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_role_assignment.collector_security_reader",
+      "type": "azurerm_role_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_role_assignment.deployer_blob_data",
+      "type": "azurerm_role_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_service_plan.collectors",
+      "type": "azurerm_service_plan",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_storage_account.evidence",
+      "type": "azurerm_storage_account",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_storage_account.func_internal",
+      "type": "azurerm_storage_account",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_storage_container.reports",
+      "type": "azurerm_storage_container",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_storage_container_immutability_policy.reports_worm",
+      "type": "azurerm_storage_container_immutability_policy",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "random_string.suffix",
+      "type": "random_string",
+      "actions": [
+        "no-op"
+      ]
+    }
+  ]
+}
