@@ -19,3 +19,7 @@ __pycache__/
 *.zip
 .DS_Store
 lab1-evidence.json
+
+# Terraform plan output (can contain sensitive values)
+tf.plan
+submission/plans/*.plan

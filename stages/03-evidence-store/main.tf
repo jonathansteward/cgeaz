@@ -76,6 +76,19 @@ resource "azurerm_cosmosdb_sql_container" "mappings" {
   partition_key_paths = ["/frameworkId"]
 }
 
+# roleassignments: who held which role, at which scope, at each collection run. Partitioned
+# by subscription like assessments: every query the reports and KQL-adjacent checks run is
+# scoped to one subscription, and a new subscription lands in its own partition with no
+# reshaping. The write volume is one document per assignment per night, far below the
+# single-partition throughput limit, so this key will not create a hot partition.
+resource "azurerm_cosmosdb_sql_container" "roleassignments" {
+  name                = "roleassignments"
+  resource_group_name = local.evidence_rg
+  account_name        = azurerm_cosmosdb_account.evidence.name
+  database_name       = azurerm_cosmosdb_sql_database.grc.name
+  partition_key_paths = ["/subscriptionId"]
+}
+
 # --- Evidence artifact storage: WORM reports container, zero shared keys. ---
 
 resource "azurerm_storage_account" "evidence" {
