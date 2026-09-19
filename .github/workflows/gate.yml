@@ -43,6 +43,14 @@ jobs:
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Write backend config
+        run: |
+          cat > labs/03-foundation/backend.hcl <<EOF
+          resource_group_name  = "rg-grc-tfstate"
+          storage_account_name = "${{ vars.STATE_STORAGE_ACCOUNT }}"
+          container_name       = "tfstate"
+          EOF
+
       - name: terraform validate + plan
         working-directory: stages/${{ matrix.stage }}
         run: |
