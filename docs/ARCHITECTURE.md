@@ -25,9 +25,9 @@ edits another stage's state.
 
 | Stage | Purpose | Key outputs handed on |
 |---|---|---|
-| `01-foundation` | Management group hierarchy, the policy initiative and its assignment, the remediation identity, the Log Analytics workspace, the evidence resource group | `management_group_id`, `log_analytics_workspace_id`, `evidence_resource_group_name`, `remediation_identity_id` |
+| `01-foundation` | Management group hierarchy, the policy initiative and its assignment, the remediation identity, the Log Analytics workspace, the scheduled detection alerts and their action group, the evidence resource group | `management_group_id`, `log_analytics_workspace_id`, `evidence_resource_group_name`, `remediation_identity_id` |
 | `02-activation` | Discovery. Reads the current tier of each Defender plan. Enabling a plan is conditional on the measured gap | `current_plan_tiers`, `activation_needed` |
-| `03-evidence-store` | Cosmos DB (`assessments`, `roleassignments`, `frameworks`, `mappings`), the evidence storage account with the WORM `reports` container, the collector Function App | `cosmos_endpoint`, `cosmos_account_id`, `evidence_storage_account`, `collector_function_app` |
+| `03-evidence-store` | Cosmos DB (`assessments`, `roleassignments`, `runs`, `frameworks`, `mappings`), the evidence storage account with the WORM `reports` container, the collector Function App | `cosmos_endpoint`, `cosmos_account_id`, `evidence_storage_account`, `collector_function_app` |
 | `04-reporting` | The reporting Function App: POA&M (daily), SAR (weekly) and OSCAL SSP (weekly) generators | `reporting_function_app`, `reporter_principal_id` |
 | `06-enforcement` | The remediation policy `cge-fix-public-blob` and its escalation ladder | `remediation_mode` |
 
@@ -36,8 +36,8 @@ of this deployment.
 
 ### Run-time data path
 
-1. `collect_nightly` (05:00 UTC) and `collect_roles_nightly` (05:30 UTC) run. The first reads Defender assessments through the ARM API and
-   upserts one document per assessment and resource into Cosmos `assessments`. Every
+1. `collect_nightly` (05:00 UTC) and `collect_roles_nightly` (05:30 UTC) run. The first reads
+   Defender assessments through the ARM API and upserts one document per assessment and resource into Cosmos `assessments`. Every
    document carries the run's `runId` and `collectedAt`. The document ID is a hash of the
    assessment and resource, so re-running the collector updates a document and never
    duplicates it.
@@ -91,6 +91,7 @@ Notes on these boundaries:
 | Drift detection, code vs. reality | `.github/workflows/drift.yml` | Nightly `terraform plan -detailed-exitcode` per stage; drift opens an issue |
 | Drift detection, who touched reality | `queries/tripwire_human_writes_to_governed_rgs.kql`, scheduled hourly by `alerts.tf` | A person changing a governed resource group directly, with the caller named |
 | FAFO detections | `queries/fafo_*.kql`, scheduled hourly by `alerts.tf` | Administrative changes outside business hours; resources created outside the approved regions |
+| Static analysis | `terraform fmt`, `terraform validate`, `tflint` (`.tflint.hcl`), `checkov` | Style and validity, provider-specific mistakes, and insecure defaults, run before a PR. The gate runs the plan through conftest |
 | Escalation ladder | `remediation_mode` in stage 06 | `audit`, then `dry-run`, then `enforce`; each step is a reviewed change |
 
 ## Why these choices
@@ -122,6 +123,32 @@ Notes on these boundaries:
   `STATE_STORAGE_ACCOUNT` repository variable before `terraform init`.
 - **A current conftest release is installed in CI.** The rules use `import rego.v1`, which
   the older bundled action cannot parse, so the workflow downloads a pinned release.
+- **Static analysis findings are fixed or justified in code.** checkov reports no failed
+  checks. The 33 skipped checks each carry an inline `#checkov:skip=<id>:<reason>` comment
+  in the resource, naming the cost or design reason (a private endpoint costs about $7 a
+  month per account, the Consumption plan has no zone redundancy, LRS is enough for a
+  sandbox). The two findings on customer-managed keys and Cosmos public access are also
+  flagged by this repository's own policies and are accepted. checkov cannot parse
+  `policies.tf` and `06-enforcement/main.tf` (nested `jsonencode` blocks), so those two
+  files are covered by `terraform validate` and the gate rules instead. `tflint` runs clean;
+  its `prevent_destroy` rule is off on purpose, because course teardown is a full
+  `terraform destroy`.
+- **Function apps ignore one app setting.** A zip deploy with a remote build removes
+  `ENABLE_ORYX_BUILD` from the running app after it has done its work. `ignore_changes` on
+  that one key stops the nightly drift check reporting the same non-change every night.
+- **The run ledger exists because evidence upserts.** Deterministic document IDs make the
+  collectors idempotent but leave only the latest `runId` on each document, so history lives
+  in the `runs` container, with the trigger recorded to tell timers from manual runs.
+- **The System Security Plan is generated, not written.** `ssp_weekly` builds an OSCAL 1.1.2
+  document from the catalog, the crosswalk and the latest assessments run in Cosmos, and the
+  output is checked against the official NIST schema (`submission/validate_ssp.py`). The
+  plan stays consistent with CONTROLS.md because both come from the same crosswalk, and
+  `labs/04-evidence/seed_800_53.py --check` fails if they diverge.
+- **Detections run as alert rules, not as saved queries.** The `.kql` files can be run by
+  hand and reviewed in a PR, and `alerts.tf` schedules them hourly, so "who is touching
+  reality" is answered without anyone remembering to look. They email the owner, and the
+  owner's own direct changes to governed groups will trigger the tripwire, which is the
+  intent.
 - **The gate matrix does not cancel on first failure.** `fail-fast: false` lets every
   stage report, and prevents a cancelled plan from leaving a stale state lock behind.
 
@@ -144,7 +171,7 @@ Notes on these boundaries:
 - **Why `/collector` for the run ledger.** Evidence documents upsert on deterministic IDs, so
   they carry only the latest `runId` and cannot show history. The `runs` container is what
   accumulates. Every query against it is "the runs of one collector", and it takes a few
-  writes a day, so the key spreads nothing it needs to. The `trigger` field is what separates
+  writes a day, so throughput is not a concern. The `trigger` field is what separates
   scheduled runs from manual ones.
 - **Why `/frameworkId` for the catalog containers.** Reads are always "all documents for
   one framework". Adding a second framework adds a partition and leaves the first alone.
@@ -152,4 +179,13 @@ Notes on these boundaries:
   `roleassignments` with the same `runId` and `collectedAt` lineage and the same
   deterministic-ID upsert as the assessments collector. It runs as the existing collector
   identity, and Security Reader is enough to read assignments, so no role is added.
+
+## Evidence package
+
+The grader cannot log in to Azure, so `submission/` carries the evidence: per-stage plan
+summaries (every action `no-op`, so code and deployed state agree), the role assignments,
+the generated POA&M, SAR and SSP, the run ledger, the blocked WORM deletes, and the record
+of a pull request the gate rejected. `submission/build.sh` regenerates all of it from the
+deployed environment, so nothing in it is written by hand. Plan output is reduced to
+address, type and action, because a raw plan can contain secret values.
 

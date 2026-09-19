@@ -1,0 +1,68 @@
+{
+  "customDefinitions": [
+    {
+      "displayName": "Cosmos DB accounts must disable public network access",
+      "mode": "Indexed",
+      "name": "cge-cosmos-no-public-access"
+    },
+    {
+      "displayName": "Storage accounts must not allow public blob access",
+      "mode": "Indexed",
+      "name": "cge-deny-public-blob"
+    },
+    {
+      "displayName": "Storage accounts must route diagnostics to the GRC workspace",
+      "mode": "Indexed",
+      "name": "cge-dine-storage-diagnostics"
+    },
+    {
+      "displayName": "Remediate: disable public blob access on storage accounts",
+      "mode": "Indexed",
+      "name": "cge-fix-public-blob"
+    },
+    {
+      "displayName": "Storage accounts must require TLS 1.2 or higher",
+      "mode": "Indexed",
+      "name": "cge-min-tls12-storage"
+    },
+    {
+      "displayName": "Resource groups must carry an env tag",
+      "mode": "All",
+      "name": "cge-require-env-tag-rg"
+    },
+    {
+      "displayName": "Storage accounts should use customer-managed keys",
+      "mode": "Indexed",
+      "name": "cge-storage-cmk"
+    }
+  ],
+  "initiative": {
+    "name": "cge-grc-baseline",
+    "displayName": "CGE-AZ GRC Baseline",
+    "referenceCount": 6,
+    "references": [
+      "cge-cosmos-no-public-access",
+      "cge-deny-public-blob",
+      "cge-dine-storage-diagnostics",
+      "cge-min-tls12-storage",
+      "cge-require-env-tag-rg",
+      "cge-storage-cmk"
+    ]
+  },
+  "assignments": [
+    {
+      "name": "cge-fix-public-blob",
+      "displayName": "Remediate public blob access (dry-run)",
+      "enforcementMode": "DoNotEnforce",
+      "scope": "/providers/Microsoft.Management/managementGroups/mg-grc-sandbox",
+      "identityType": "UserAssigned"
+    },
+    {
+      "name": "cge-grc-baseline",
+      "displayName": "CGE-AZ GRC Baseline",
+      "enforcementMode": "Default",
+      "scope": "/providers/Microsoft.Management/managementGroups/mg-grc-sandbox",
+      "identityType": "UserAssigned"
+    }
+  ]
+}

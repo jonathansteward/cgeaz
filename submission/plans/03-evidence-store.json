@@ -14,35 +14,45 @@
       "type": "azurerm_cosmosdb_sql_container",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "assessments",
+      "display_name": null
     },
     {
       "address": "azurerm_cosmosdb_sql_container.frameworks",
       "type": "azurerm_cosmosdb_sql_container",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "frameworks",
+      "display_name": null
     },
     {
       "address": "azurerm_cosmosdb_sql_container.mappings",
       "type": "azurerm_cosmosdb_sql_container",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "mappings",
+      "display_name": null
     },
     {
       "address": "azurerm_cosmosdb_sql_container.roleassignments",
       "type": "azurerm_cosmosdb_sql_container",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "roleassignments",
+      "display_name": null
     },
     {
       "address": "azurerm_cosmosdb_sql_container.runs",
       "type": "azurerm_cosmosdb_sql_container",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "runs",
+      "display_name": null
     },
     {
       "address": "azurerm_cosmosdb_sql_database.grc",
@@ -56,14 +66,18 @@
       "type": "azurerm_cosmosdb_sql_role_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "1caf6dcd-3a3c-da9f-c919-55e3de214abc",
+      "display_name": null
     },
     {
       "address": "azurerm_cosmosdb_sql_role_assignment.deployer_cosmos_write",
       "type": "azurerm_cosmosdb_sql_role_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "d0f4b20c-afee-c833-bed7-d41e97380103",
+      "display_name": null
     },
     {
       "address": "azurerm_linux_function_app.collectors",
@@ -77,14 +91,18 @@
       "type": "azurerm_role_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "f88c6e99-e556-98b3-421b-d7f4c5fd986a",
+      "display_name": null
     },
     {
       "address": "azurerm_role_assignment.deployer_blob_data",
       "type": "azurerm_role_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "d8555519-cd8b-4614-da2d-2fc1047859fd",
+      "display_name": null
     },
     {
       "address": "azurerm_service_plan.collectors",
@@ -112,14 +130,18 @@
       "type": "azurerm_storage_container",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "reports",
+      "display_name": null
     },
     {
       "address": "azurerm_storage_container_immutability_policy.reports_worm",
       "type": "azurerm_storage_container_immutability_policy",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": null,
+      "display_name": null
     },
     {
       "address": "random_string.suffix",

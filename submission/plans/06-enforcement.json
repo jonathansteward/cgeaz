@@ -7,21 +7,27 @@
       "type": "azurerm_management_group_policy_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-fix-public-blob",
+      "display_name": "Remediate public blob access (dry-run)"
     },
     {
       "address": "azurerm_policy_definition.fix_public_blob",
       "type": "azurerm_policy_definition",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "cge-fix-public-blob",
+      "display_name": "Remediate: disable public blob access on storage accounts"
     },
     {
       "address": "azurerm_role_assignment.remediation_storage[0]",
       "type": "azurerm_role_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "d2f21e80-095e-40d9-bddc-5584ef9b3f54",
+      "display_name": null
     }
   ]
 }

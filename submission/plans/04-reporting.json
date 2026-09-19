@@ -7,7 +7,9 @@
       "type": "azurerm_cosmosdb_sql_role_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "940de05b-6178-777f-1e46-6f6ce7ea016e",
+      "display_name": null
     },
     {
       "address": "azurerm_linux_function_app.reporting",
@@ -21,7 +23,9 @@
       "type": "azurerm_role_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "d57363f9-0dd2-5794-842b-97a4180a7c73",
+      "display_name": null
     },
     {
       "address": "azurerm_service_plan.reporting",

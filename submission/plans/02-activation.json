@@ -21,7 +21,9 @@
       "type": "azurerm_subscription_policy_assignment",
       "actions": [
         "no-op"
-      ]
+      ],
+      "name": "nist-csf-20",
+      "display_name": "NIST CSF v2.0"
     }
   ]
 }
