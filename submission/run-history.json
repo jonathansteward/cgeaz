@@ -1,0 +1,19 @@
+{
+  "source": "Cosmos container 'runs' (the collection run ledger). trigger is 'timer' for scheduled runs and 'manual' for runs started by a person.",
+  "runs": [
+    {
+      "collector": "roleassignments",
+      "trigger": "manual",
+      "runId": "5d1a628e-38a0-42f5-b18a-2d91cb683e9d",
+      "collectedAt": "2026-09-19T21:55:45.023339+00:00",
+      "documentsWritten": 13
+    },
+    {
+      "collector": "assessments",
+      "trigger": "manual",
+      "runId": "bc87f188-239b-4eb7-ab1e-db2ce010db93",
+      "collectedAt": "2026-09-19T21:55:46.969678+00:00",
+      "documentsWritten": 98
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "container": "reports",
+  "storageAccount": "stgrcevidg0z12u",
+  "immutabilityPolicy": {
+    "retentionDays": 90,
+    "state": "Unlocked"
+  },
+  "attempts": [
+    {
+      "blob": "worm-test.txt",
+      "command": "az storage blob delete",
+      "result": "blocked",
+      "output": "ERROR: This operation is not permitted as the blob is immutable due to a policy. Time:2026-09-19T22:00:14.1953533Z ErrorCode:BlobImmutableDueToPolicy "
+    },
+    {
+      "blob": "sar/2026/09/sar-2026-09-19.md",
+      "command": "az storage blob delete",
+      "result": "blocked",
+      "output": "ERROR: This operation is not permitted as the blob is immutable due to a policy. Time:2026-09-19T22:00:14.8009413Z ErrorCode:BlobImmutableDueToPolicy "
+    }
+  ]
+}

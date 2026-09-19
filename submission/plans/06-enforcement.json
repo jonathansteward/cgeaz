@@ -1,0 +1,27 @@
+{
+  "stage": "06-enforcement",
+  "format_version": "1.2",
+  "resource_changes": [
+    {
+      "address": "azurerm_management_group_policy_assignment.fix_public_blob",
+      "type": "azurerm_management_group_policy_assignment",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_policy_definition.fix_public_blob",
+      "type": "azurerm_policy_definition",
+      "actions": [
+        "no-op"
+      ]
+    },
+    {
+      "address": "azurerm_role_assignment.remediation_storage[0]",
+      "type": "azurerm_role_assignment",
+      "actions": [
+        "no-op"
+      ]
+    }
+  ]
+}
