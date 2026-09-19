@@ -1,0 +1,13 @@
+// FAFO operating rule: administrative changes happen 08:00-18:00 Eastern, Monday to Friday.
+// Flags successful administrative writes and deletes outside that window, by caller.
+let businessStart = 8;
+let businessEnd = 18;
+let tz = "America/New_York";
+AzureActivity
+| where CategoryValue == "Administrative" and ActivityStatusValue == "Success"
+| where OperationNameValue endswith "/write" or OperationNameValue endswith "/delete"
+| extend LocalTime = datetime_utc_to_local(TimeGenerated, tz)
+| extend Hour = hourofday(LocalTime), Day = dayofweek(LocalTime) / 1d
+| where Hour < businessStart or Hour >= businessEnd or Day in (0, 6)
+| summarize Writes = count(), FirstSeen = min(TimeGenerated), LastSeen = max(TimeGenerated) by Caller, OperationNameValue
+| order by Writes desc

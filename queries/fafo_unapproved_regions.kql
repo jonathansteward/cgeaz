@@ -1,0 +1,11 @@
+// FAFO operating rule: resources are created only in eastus, eastus2 and centralus.
+// Flags successful writes whose response carries a region outside the approved list.
+let approved = dynamic(["eastus", "eastus2", "centralus", "global"]);
+AzureActivity
+| where CategoryValue == "Administrative" and ActivityStatusValue == "Success"
+| where OperationNameValue endswith "/write"
+| extend Body = parse_json(tostring(parse_json(Properties).responseBody))
+| extend Region = tolower(tostring(Body.location))
+| where isnotempty(Region) and Region !in (approved)
+| summarize Resources = dcount(_ResourceId), Sample = any(_ResourceId) by Region, Caller
+| order by Resources desc
