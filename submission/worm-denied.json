@@ -10,13 +10,13 @@
       "blob": "worm-test.txt",
       "command": "az storage blob delete",
       "result": "blocked",
-      "output": "ERROR: This operation is not permitted as the blob is immutable due to a policy. Time:2026-09-19T22:00:14.1953533Z ErrorCode:BlobImmutableDueToPolicy "
+      "output": "ERROR: This operation is not permitted as the blob is immutable due to a policy. Time:2026-09-19T22:24:39.6943617Z ErrorCode:BlobImmutableDueToPolicy "
     },
     {
       "blob": "sar/2026/09/sar-2026-09-19.md",
       "command": "az storage blob delete",
       "result": "blocked",
-      "output": "ERROR: This operation is not permitted as the blob is immutable due to a policy. Time:2026-09-19T22:00:14.8009413Z ErrorCode:BlobImmutableDueToPolicy "
+      "output": "ERROR: This operation is not permitted as the blob is immutable due to a policy. Time:2026-09-19T22:24:40.2263416Z ErrorCode:BlobImmutableDueToPolicy "
     }
   ]
 }

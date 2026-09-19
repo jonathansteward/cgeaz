@@ -1,0 +1,1207 @@
+{
+  "system-security-plan": {
+    "uuid": "2e7c0b3f-efd4-53be-a38e-b69628313c82",
+    "metadata": {
+      "title": "System Security Plan: FAFO GRC engineering pipeline",
+      "last-modified": "2026-09-19T22:22:17.229446+00:00",
+      "version": "2026-09-19",
+      "oscal-version": "1.1.2",
+      "roles": [
+        {
+          "id": "system-owner",
+          "title": "System Owner"
+        }
+      ],
+      "parties": [
+        {
+          "uuid": "2568d319-51f0-5ed4-801a-0bc79b786124",
+          "type": "organization",
+          "name": "FAFO"
+        }
+      ],
+      "responsible-parties": [
+        {
+          "role-id": "system-owner",
+          "party-uuids": [
+            "2568d319-51f0-5ed4-801a-0bc79b786124"
+          ]
+        }
+      ],
+      "remarks": "Generated from the evidence store. Assessments run: bc87f188-239b-4eb7-ab1e-db2ce010db93. The control set is a deliberate subset of NIST 800-53, not the full baseline."
+    },
+    "import-profile": {
+      "href": "https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_MODERATE-baseline_profile.json"
+    },
+    "system-characteristics": {
+      "system-ids": [
+        {
+          "id": "fafo-grc-pipeline"
+        }
+      ],
+      "system-name": "FAFO GRC engineering pipeline",
+      "description": "An automated pipeline that discovers what an Azure subscription runs, collects control evidence into a store the team owns, reports only from that store, and enforces baseline controls through Azure Policy with a human at the approval gate.",
+      "security-sensitivity-level": "moderate",
+      "system-information": {
+        "information-types": [
+          {
+            "uuid": "cd6bf5de-baab-5af6-baa5-0800902468b9",
+            "title": "Security assessment and configuration evidence",
+            "description": "Defender assessments, role assignments, policy definitions and run records.",
+            "confidentiality-impact": {
+              "base": "fips-199-moderate"
+            },
+            "integrity-impact": {
+              "base": "fips-199-moderate"
+            },
+            "availability-impact": {
+              "base": "fips-199-low"
+            }
+          }
+        ]
+      },
+      "security-impact-level": {
+        "security-objective-confidentiality": "fips-199-moderate",
+        "security-objective-integrity": "fips-199-moderate",
+        "security-objective-availability": "fips-199-low"
+      },
+      "status": {
+        "state": "operational"
+      },
+      "authorization-boundary": {
+        "description": "One Azure subscription under the mg-grc management group hierarchy: the evidence resource group, the sandbox resource group, and the policies assigned at mg-grc-sandbox."
+      }
+    },
+    "system-implementation": {
+      "users": [
+        {
+          "uuid": "43b1097f-fcc2-5855-8763-023a63a5aeb6",
+          "title": "Pipeline owner",
+          "role-ids": [
+            "system-owner"
+          ],
+          "authorized-privileges": [
+            {
+              "title": "Approve remediation and escalate policy effects",
+              "functions-performed": [
+                "approve-remediation"
+              ]
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "uuid": "1e9196c0-eda7-5584-8236-29b1ae524d91",
+          "type": "this-system",
+          "title": "FAFO GRC engineering pipeline",
+          "description": "The collectors, evidence store, report generators, policies and gates that make up the pipeline.",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "dbbddd89-63d9-5618-acac-6be3bbf2eedb",
+          "type": "policy",
+          "title": "cge-require-env-tag-rg",
+          "description": "Resource groups must carry an env tag",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "5cf4e9a4-9773-5d57-8cce-c8b9b9c40990",
+          "type": "policy",
+          "title": "cge-deny-public-blob",
+          "description": "Storage accounts must not allow public blob access",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "14432c9a-732e-5867-949e-19c8d2fbaa5d",
+          "type": "policy",
+          "title": "cge-dine-storage-diagnostics",
+          "description": "Storage accounts route diagnostics to the GRC workspace",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "6299a4a7-0664-52fa-ae3e-c0d5215d8be1",
+          "type": "policy",
+          "title": "cge-min-tls12-storage",
+          "description": "Storage accounts must require TLS 1.2 or higher",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "cdd0278a-51f8-52c3-b569-f456aa4f85b3",
+          "type": "policy",
+          "title": "cge-cosmos-no-public-access",
+          "description": "Cosmos DB accounts must disable public network access",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "af1ff1f3-2d58-57bf-bd1c-6cacd5ffefd7",
+          "type": "policy",
+          "title": "cge-storage-cmk",
+          "description": "Storage accounts should use customer-managed keys",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "0501cfe3-955d-5f18-b620-6b725b914678",
+          "type": "policy",
+          "title": "cge-fix-public-blob",
+          "description": "Remediation: disable public blob access",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "c436764f-76ab-552c-ad5f-ac66e1ada997",
+          "type": "software",
+          "title": "management-group-hierarchy",
+          "description": "Management group hierarchy and initiative assignment",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "ed162dde-5bfa-5f8c-8975-3523c0a01de3",
+          "type": "software",
+          "title": "remediation-identity",
+          "description": "User-assigned remediation identity with whitelist roles",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "d047dbc6-6fb3-57ad-b5b7-c911dd0c9b0e",
+          "type": "software",
+          "title": "log-analytics-activity-log",
+          "description": "Log Analytics workspace and Activity Log routing",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "78107510-4c17-5f21-bed0-db47fbd313f3",
+          "type": "software",
+          "title": "cosmos-evidence-store",
+          "description": "Cosmos DB evidence store",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "68c65db9-0419-532e-9ca3-0d8243cf8da6",
+          "type": "software",
+          "title": "worm-reports-container",
+          "description": "WORM immutability policy on the reports container",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "d38b0d2c-c90a-5ff5-b9e6-7e2eb3f063b4",
+          "type": "software",
+          "title": "shared-keys-disabled-rbac",
+          "description": "Shared keys disabled, data-plane RBAC",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "a2145e36-fb37-538a-912a-767f84259a75",
+          "type": "software",
+          "title": "collector-function",
+          "description": "Collector Function (Security Reader, Cosmos write only)",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "76b6c0ed-d927-5a6c-adc9-3e16553e172f",
+          "type": "software",
+          "title": "collector-reporter-split",
+          "description": "Collector and reporter identity split",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "495626d0-64ed-50c5-b12d-2ca4a3dc8841",
+          "type": "software",
+          "title": "role-assignment-collector",
+          "description": "Role assignment collector and roleassignments container",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "915aba45-b3de-5af4-bfff-ec28f8466646",
+          "type": "software",
+          "title": "poam-generator",
+          "description": "POA&M generator",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "4888db08-6f24-5854-bbcc-8acd519b27bf",
+          "type": "software",
+          "title": "sar-generator",
+          "description": "SAR generator",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "f6d069b6-39cd-56e5-ae78-9cc678f6440a",
+          "type": "software",
+          "title": "remediation-mode-variable",
+          "description": "remediation_mode escalation variable",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "3ff15b9a-c02a-57b0-b211-638ba03fe038",
+          "type": "process",
+          "title": "storage.rego",
+          "description": "Storage below the pipeline's own standard",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "be5f8cb9-44be-5fa2-9dd1-0aa094fc8bca",
+          "type": "process",
+          "title": "policy_identity.rego",
+          "description": "Remediation assignment without an identity",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "f35eae13-e333-5dec-9ae4-a68108c8d650",
+          "type": "process",
+          "title": "broad_roles.rego",
+          "description": "Owner or Contributor grants in governance code",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "f4fde47e-15a1-54c8-975a-682a0a003aa2",
+          "type": "process",
+          "title": "drift-detection",
+          "description": "drift.yml and the KQL tripwire",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "80b5683b-5a0a-570e-a79b-864327de7a1f",
+          "type": "process",
+          "title": "fafo-after-hours-admin-writes",
+          "description": "KQL: administrative changes outside business hours",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "79fbceef-d98e-5cf3-acb3-8fa775e7ae8c",
+          "type": "process",
+          "title": "fafo-unapproved-regions",
+          "description": "KQL: resources created outside approved regions",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "cfb4676a-8b90-5060-b655-af3b648983af",
+          "type": "software",
+          "title": "run-ledger",
+          "description": "Run ledger container recording every collection run",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "87cdaef7-aca3-5f23-b48d-abfdc0862b29",
+          "type": "software",
+          "title": "ssp-generator",
+          "description": "OSCAL System Security Plan generator",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "ac980fab-a333-594d-94ae-77bb48157a1a",
+          "type": "software",
+          "title": "scheduled-detection-alerts",
+          "description": "Scheduled alert rules running the KQL detections hourly",
+          "status": {
+            "state": "operational"
+          }
+        },
+        {
+          "uuid": "a5fdd848-a346-52d9-9b6b-f4efba3cb87e",
+          "type": "process",
+          "title": "tripwire-human-writes-to-governed-rgs",
+          "description": "KQL: a person changed a governed resource group directly",
+          "status": {
+            "state": "operational"
+          }
+        }
+      ]
+    },
+    "control-implementation": {
+      "description": "Each requirement below is implemented by the policies, pipeline components and gate rules that the crosswalk maps to it. The crosswalk is stored data (mappings container) and mirrors docs/CONTROLS.md.",
+      "implemented-requirements": [
+        {
+          "uuid": "f55f381d-caf1-5601-b78d-14015a1bd48e",
+          "control-id": "ac-2",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "ed162dde-5bfa-5f8c-8975-3523c0a01de3",
+              "uuid": "aad2c0c2-f0cb-5657-b46a-6cd5c5f40759",
+              "description": "User-assigned remediation identity with whitelist roles (component: remediation-identity).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "495626d0-64ed-50c5-b12d-2ca4a3dc8841",
+              "uuid": "ae3b767a-2fb1-55e8-9cd5-f2ed25f89605",
+              "description": "Role assignment collector and roleassignments container (component: role-assignment-collector).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Account Management. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "a4f099e8-7aed-504b-87c4-0b0ed31f2edf",
+          "control-id": "ac-3",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "d38b0d2c-c90a-5ff5-b9e6-7e2eb3f063b4",
+              "uuid": "21f28ce1-7c5b-5e6f-8b3b-de5330234e53",
+              "description": "Shared keys disabled, data-plane RBAC (component: shared-keys-disabled-rbac).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "3ff15b9a-c02a-57b0-b211-638ba03fe038",
+              "uuid": "08d6f76f-557e-502f-bc5e-401ebe6b7009",
+              "description": "Storage below the pipeline's own standard (gate: storage.rego).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "5cf4e9a4-9773-5d57-8cce-c8b9b9c40990",
+              "uuid": "d6f1d8a9-27ce-5aea-986f-da53d008f1c7",
+              "description": "Storage accounts must not allow public blob access (policy: cge-deny-public-blob).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Access Enforcement. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "a1dc6016-c1e2-5866-900e-49bfd6bfe85e",
+          "control-id": "ac-5",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "76b6c0ed-d927-5a6c-adc9-3e16553e172f",
+              "uuid": "9cedced2-ad7b-5c0a-a26e-70b50006051a",
+              "description": "Collector and reporter identity split (component: collector-reporter-split).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Separation of Duties. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "51785e0b-23b3-511c-9a51-50263aad8062",
+          "control-id": "ac-6",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "76b6c0ed-d927-5a6c-adc9-3e16553e172f",
+              "uuid": "59744500-7c28-5e85-b8bc-d2614f81a702",
+              "description": "Collector and reporter identity split (component: collector-reporter-split).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "ed162dde-5bfa-5f8c-8975-3523c0a01de3",
+              "uuid": "74b8ad09-bde7-5efe-8a1a-39d916b654f7",
+              "description": "User-assigned remediation identity with whitelist roles (component: remediation-identity).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "495626d0-64ed-50c5-b12d-2ca4a3dc8841",
+              "uuid": "26d792cb-bf3f-58fe-b4b2-ecbb13cd315e",
+              "description": "Role assignment collector and roleassignments container (component: role-assignment-collector).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "d38b0d2c-c90a-5ff5-b9e6-7e2eb3f063b4",
+              "uuid": "335f30b8-396f-5ebb-928e-3281b320d69a",
+              "description": "Shared keys disabled, data-plane RBAC (component: shared-keys-disabled-rbac).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "f35eae13-e333-5dec-9ae4-a68108c8d650",
+              "uuid": "65b8eb19-ec0a-5c83-97c8-7918f70c104d",
+              "description": "Owner or Contributor grants in governance code (gate: broad_roles.rego).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "be5f8cb9-44be-5fa2-9dd1-0aa094fc8bca",
+              "uuid": "1d9f1657-4860-50d8-bd51-b1bb553abeab",
+              "description": "Remediation assignment without an identity (gate: policy_identity.rego).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Least Privilege. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "9c5f86a0-6f0a-54f6-b41d-f6a511e4210d",
+          "control-id": "au-11",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "d047dbc6-6fb3-57ad-b5b7-c911dd0c9b0e",
+              "uuid": "ab2b82d3-39b3-530a-a93c-bb3444512f43",
+              "description": "Log Analytics workspace and Activity Log routing (component: log-analytics-activity-log).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "68c65db9-0419-532e-9ca3-0d8243cf8da6",
+              "uuid": "1ee1322b-11d1-50d0-ba01-094971a199ab",
+              "description": "WORM immutability policy on the reports container (component: worm-reports-container).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Audit Record Retention. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "65f0e381-13b6-5b72-a1a1-a5ebacbfb81c",
+          "control-id": "au-12",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "cfb4676a-8b90-5060-b655-af3b648983af",
+              "uuid": "0989e381-d5f3-5603-98ad-d391691605fe",
+              "description": "Run ledger container recording every collection run (component: run-ledger).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "14432c9a-732e-5867-949e-19c8d2fbaa5d",
+              "uuid": "f1b5d8b3-f490-59cc-80fb-9d425995eac1",
+              "description": "Storage accounts route diagnostics to the GRC workspace (policy: cge-dine-storage-diagnostics).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Audit Record Generation. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "6c923f8d-29ea-592b-b681-c218ec9fa467",
+          "control-id": "au-2",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "d047dbc6-6fb3-57ad-b5b7-c911dd0c9b0e",
+              "uuid": "0ed233df-34cc-5a82-90a5-6af344d5077d",
+              "description": "Log Analytics workspace and Activity Log routing (component: log-analytics-activity-log).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "cfb4676a-8b90-5060-b655-af3b648983af",
+              "uuid": "d2b8962d-944c-5972-9fd0-6c1def3f402a",
+              "description": "Run ledger container recording every collection run (component: run-ledger).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "14432c9a-732e-5867-949e-19c8d2fbaa5d",
+              "uuid": "fbb2b2df-450d-548a-b645-fad52f0d3c4b",
+              "description": "Storage accounts route diagnostics to the GRC workspace (policy: cge-dine-storage-diagnostics).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Event Logging. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "28e9b38a-aeb8-509e-bd5d-025be0b9666b",
+          "control-id": "au-6",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "d047dbc6-6fb3-57ad-b5b7-c911dd0c9b0e",
+              "uuid": "ba194ac6-37e0-5093-9548-d96912a968be",
+              "description": "Log Analytics workspace and Activity Log routing (component: log-analytics-activity-log).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Audit Record Review, Analysis, and Reporting. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "397b261f-c79e-5e39-80ec-a0e6760192ed",
+          "control-id": "au-9",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "68c65db9-0419-532e-9ca3-0d8243cf8da6",
+              "uuid": "a7b3968e-dfb0-5fd5-a018-beaf5224e39d",
+              "description": "WORM immutability policy on the reports container (component: worm-reports-container).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Protection of Audit Information. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "619368d4-4850-52a1-8346-ac6b6f2e5978",
+          "control-id": "ca-2",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "78107510-4c17-5f21-bed0-db47fbd313f3",
+              "uuid": "f2acdf9d-ad0f-5e96-b9ef-5facacc37475",
+              "description": "Cosmos DB evidence store (component: cosmos-evidence-store).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "4888db08-6f24-5854-bbcc-8acd519b27bf",
+              "uuid": "6ba33801-3d6e-5776-8388-072e7bfeff59",
+              "description": "SAR generator (component: sar-generator).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "87cdaef7-aca3-5f23-b48d-abfdc0862b29",
+              "uuid": "f9553c4f-1df8-51e3-8972-28d914b1d216",
+              "description": "OSCAL System Security Plan generator (component: ssp-generator).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Control Assessments. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "f23e2970-4e88-5521-9655-67d24eba226d",
+          "control-id": "ca-5",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "915aba45-b3de-5af4-bfff-ec28f8466646",
+              "uuid": "49a3811e-085f-5232-ae15-8aac492f8a88",
+              "description": "POA&M generator (component: poam-generator).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Plan of Action and Milestones. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "ff91aa00-22a8-551b-96ba-5073b40a28a4",
+          "control-id": "ca-7",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "a2145e36-fb37-538a-912a-767f84259a75",
+              "uuid": "66ad90c7-177a-53f4-b98d-d97cd9d94180",
+              "description": "Collector Function (Security Reader, Cosmos write only) (component: collector-function).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "78107510-4c17-5f21-bed0-db47fbd313f3",
+              "uuid": "59b348db-0991-5484-96e1-1b47179c4782",
+              "description": "Cosmos DB evidence store (component: cosmos-evidence-store).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "495626d0-64ed-50c5-b12d-2ca4a3dc8841",
+              "uuid": "f2446b1a-ca58-52a7-b5bf-de67512cb6ed",
+              "description": "Role assignment collector and roleassignments container (component: role-assignment-collector).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "cfb4676a-8b90-5060-b655-af3b648983af",
+              "uuid": "14025d8e-98ed-5700-a6f6-a76c96ea76e9",
+              "description": "Run ledger container recording every collection run (component: run-ledger).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "ac980fab-a333-594d-94ae-77bb48157a1a",
+              "uuid": "8dbc94bc-13e2-59d3-a98f-70687c571eb8",
+              "description": "Scheduled alert rules running the KQL detections hourly (component: scheduled-detection-alerts).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "f4fde47e-15a1-54c8-975a-682a0a003aa2",
+              "uuid": "386c65b0-e161-522d-b013-0782c4da65a4",
+              "description": "drift.yml and the KQL tripwire (gate: drift-detection).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "80b5683b-5a0a-570e-a79b-864327de7a1f",
+              "uuid": "48a41553-c38b-52a8-933b-39c9d411a7f9",
+              "description": "KQL: administrative changes outside business hours (gate: fafo-after-hours-admin-writes).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "a5fdd848-a346-52d9-9b6b-f4efba3cb87e",
+              "uuid": "ae0db8e1-63dc-51d5-bff4-ffe30cab4e8e",
+              "description": "KQL: a person changed a governed resource group directly (gate: tripwire-human-writes-to-governed-rgs).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Continuous Monitoring. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "e6af460a-7c02-52d4-bb2f-3ef2b04000c3",
+          "control-id": "cm-2",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "c436764f-76ab-552c-ad5f-ac66e1ada997",
+              "uuid": "b028682f-865d-5b7a-be30-946073e2ac85",
+              "description": "Management group hierarchy and initiative assignment (component: management-group-hierarchy).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "79fbceef-d98e-5cf3-acb3-8fa775e7ae8c",
+              "uuid": "6bd0f6d3-8e1a-5244-a0d4-3395a38de61f",
+              "description": "KQL: resources created outside approved regions (gate: fafo-unapproved-regions).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Baseline Configuration. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "9d7ca02a-5a2f-584e-a778-005611c34b74",
+          "control-id": "cm-3",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "f6d069b6-39cd-56e5-ae78-9cc678f6440a",
+              "uuid": "3e083515-813d-5d3a-a7b3-0e66f4d42753",
+              "description": "remediation_mode escalation variable (component: remediation-mode-variable).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "f4fde47e-15a1-54c8-975a-682a0a003aa2",
+              "uuid": "9e34299f-1c80-568d-afe8-846bc7f85b25",
+              "description": "drift.yml and the KQL tripwire (gate: drift-detection).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "be5f8cb9-44be-5fa2-9dd1-0aa094fc8bca",
+              "uuid": "e03618bc-1094-5064-87a5-2089ccd7571a",
+              "description": "Remediation assignment without an identity (gate: policy_identity.rego).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "a5fdd848-a346-52d9-9b6b-f4efba3cb87e",
+              "uuid": "d71ce341-0368-5336-971a-d5dccee1f0c0",
+              "description": "KQL: a person changed a governed resource group directly (gate: tripwire-human-writes-to-governed-rgs).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Configuration Change Control. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "b099f21a-dd68-500e-b360-1ca00448b613",
+          "control-id": "cm-6",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "c436764f-76ab-552c-ad5f-ac66e1ada997",
+              "uuid": "7a0df9b0-121d-5b50-8e2e-93f565012b8c",
+              "description": "Management group hierarchy and initiative assignment (component: management-group-hierarchy).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "0501cfe3-955d-5f18-b620-6b725b914678",
+              "uuid": "57f7c027-baf0-532c-b13c-4bc2fd65e380",
+              "description": "Remediation: disable public blob access (policy: cge-fix-public-blob).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Configuration Settings. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "d78269b9-a7bf-542e-8512-3166b7572818",
+          "control-id": "cm-8",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "dbbddd89-63d9-5618-acac-6be3bbf2eedb",
+              "uuid": "2554bbf8-3269-5a36-b094-75de406ea535",
+              "description": "Resource groups must carry an env tag (policy: cge-require-env-tag-rg).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "System Component Inventory. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "d4bc7e20-dec9-5d71-aeb5-c7ad84c72328",
+          "control-id": "ia-5",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "d38b0d2c-c90a-5ff5-b9e6-7e2eb3f063b4",
+              "uuid": "f424a157-8438-5f02-9be1-85a15ce5063a",
+              "description": "Shared keys disabled, data-plane RBAC (component: shared-keys-disabled-rbac).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Authenticator Management. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "f6efb84b-7092-5ee5-84fb-92a2cb8cb2ef",
+          "control-id": "pl-2",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "87cdaef7-aca3-5f23-b48d-abfdc0862b29",
+              "uuid": "829aadb1-d965-5b7e-b9d7-51e56b0116e6",
+              "description": "OSCAL System Security Plan generator (component: ssp-generator).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "System Security and Privacy Plans. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "76304f27-0556-5ae7-8ecd-c908dc71dcc6",
+          "control-id": "ra-5",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "a2145e36-fb37-538a-912a-767f84259a75",
+              "uuid": "5ca20705-ebaf-5534-a1ed-9e5a39e0701d",
+              "description": "Collector Function (Security Reader, Cosmos write only) (component: collector-function).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Vulnerability Monitoring and Scanning. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "edf171b3-59f8-5a76-81cc-2a676b4a4d91",
+          "control-id": "ra-7",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "0501cfe3-955d-5f18-b620-6b725b914678",
+              "uuid": "3aeb5e03-e32f-5d39-839a-13031a6f3611",
+              "description": "Remediation: disable public blob access (policy: cge-fix-public-blob).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Risk Response. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "dc44caea-aa5e-5090-af81-8198fd84cf96",
+          "control-id": "sc-12",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "af1ff1f3-2d58-57bf-bd1c-6cacd5ffefd7",
+              "uuid": "81c01ad4-8d21-576d-8e97-6d65c39d17c5",
+              "description": "Storage accounts should use customer-managed keys (policy: cge-storage-cmk).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Cryptographic Key Establishment and Management. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "920964c7-7ed4-5e16-bccb-8fffb0092ffc",
+          "control-id": "sc-13",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "6299a4a7-0664-52fa-ae3e-c0d5215d8be1",
+              "uuid": "abed6042-e964-5be5-a1ff-5d5369cd530e",
+              "description": "Storage accounts must require TLS 1.2 or higher (policy: cge-min-tls12-storage).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Cryptographic Protection. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "35bd0332-080e-54e3-bc07-ab674002aa2e",
+          "control-id": "sc-28",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "3ff15b9a-c02a-57b0-b211-638ba03fe038",
+              "uuid": "7595ba7f-df24-5dd8-af14-c3a28ceddcc1",
+              "description": "Storage below the pipeline's own standard (gate: storage.rego).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "af1ff1f3-2d58-57bf-bd1c-6cacd5ffefd7",
+              "uuid": "442ea88f-fa85-52a0-9f3e-e9442edd9da4",
+              "description": "Storage accounts should use customer-managed keys (policy: cge-storage-cmk).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Protection of Information at Rest. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "80820728-69bb-50d8-8cd3-d1b8adc7441e",
+          "control-id": "sc-7",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "cdd0278a-51f8-52c3-b569-f456aa4f85b3",
+              "uuid": "606276ff-afd7-51b8-8530-83f2f03f9d88",
+              "description": "Cosmos DB accounts must disable public network access (policy: cge-cosmos-no-public-access).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "5cf4e9a4-9773-5d57-8cce-c8b9b9c40990",
+              "uuid": "616df2c7-9ecc-5ebe-b912-e1962dd27198",
+              "description": "Storage accounts must not allow public blob access (policy: cge-deny-public-blob).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Boundary Protection. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "d1fd854f-c9f8-5ee4-b8ea-d0be30e684ca",
+          "control-id": "sc-8",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "3ff15b9a-c02a-57b0-b211-638ba03fe038",
+              "uuid": "3822e1a8-e8b5-5fb8-98d2-26a8e8670fc9",
+              "description": "Storage below the pipeline's own standard (gate: storage.rego).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "6299a4a7-0664-52fa-ae3e-c0d5215d8be1",
+              "uuid": "a765dd97-14ff-5234-b2f9-707fd36b6ffe",
+              "description": "Storage accounts must require TLS 1.2 or higher (policy: cge-min-tls12-storage).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "Transmission Confidentiality and Integrity. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 0."
+        },
+        {
+          "uuid": "cb0b2b67-c9b5-55bd-b7c2-80cb6626b80d",
+          "control-id": "si-4",
+          "props": [
+            {
+              "name": "implementation-status",
+              "value": "implemented",
+              "ns": "http://csrc.nist.gov/ns/oscal"
+            }
+          ],
+          "by-components": [
+            {
+              "component-uuid": "ac980fab-a333-594d-94ae-77bb48157a1a",
+              "uuid": "7d3d684d-09e0-5a8e-8886-c654a75854e4",
+              "description": "Scheduled alert rules running the KQL detections hourly (component: scheduled-detection-alerts).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "f4fde47e-15a1-54c8-975a-682a0a003aa2",
+              "uuid": "523155ba-0778-5a61-ae78-58950057b8e4",
+              "description": "drift.yml and the KQL tripwire (gate: drift-detection).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "80b5683b-5a0a-570e-a79b-864327de7a1f",
+              "uuid": "dde50038-8811-58c1-aeb9-8d46d7c2e286",
+              "description": "KQL: administrative changes outside business hours (gate: fafo-after-hours-admin-writes).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "79fbceef-d98e-5cf3-acb3-8fa775e7ae8c",
+              "uuid": "0ae1e612-106b-5a6f-8903-35c70a0771ed",
+              "description": "KQL: resources created outside approved regions (gate: fafo-unapproved-regions).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            },
+            {
+              "component-uuid": "a5fdd848-a346-52d9-9b6b-f4efba3cb87e",
+              "uuid": "1b60cf5f-364d-59e2-a622-4b46c095d6a8",
+              "description": "KQL: a person changed a governed resource group directly (gate: tripwire-human-writes-to-governed-rgs).",
+              "implementation-status": {
+                "state": "implemented"
+              }
+            }
+          ],
+          "remarks": "System Monitoring. Open findings mapped to this control in run bc87f188-239b-4eb7-ab1e-db2ce010db93: 1."
+        }
+      ]
+    }
+  }
+}
