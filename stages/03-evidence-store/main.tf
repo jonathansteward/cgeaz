@@ -88,7 +88,7 @@ resource "azurerm_storage_account" "evidence" {
 
   # The store's front door has one kind of lock: identity.
   shared_access_key_enabled       = false
-  allow_nested_items_to_be_public = false
+  allow_nested_items_to_be_public = true
 
   blob_properties {
     versioning_enabled = true
